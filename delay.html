@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Delay Process</title>
+    <link rel="stylesheet" href="delay.css" />
+    <script type="module" src="delay.js" defer></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header class="main-header-bar" id="mainHeader">
+        <div class="logo">Hip Go Goal</div>
+        <div class="hamburger-menu" id="hamburgerMenu">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </header>
+
+    <nav class="overlay-menu" id="overlayMenu">
+        <div class="nav-container">
+            <div class="close-btn" id="closeMenu">&times;</div>
+            <div class="sidebar-content-overlay">
+                <div class="logo-overlay">Hip Go Goal</div>
+                <ul class="nav-list">
+                    <li><a href="progress.html">HOME</a></li>
+                    <li><a href="index.html">NEW PATIENT</a></li>
+                    <li><a href="process.html">PHYSICAL</a></li>
+                    <li><a href="discharge.html">REGISTER PROCESS</a></li>
+                    <li><a href="delay.html" class="active">DELAY PROCESS</a></li>
+                    <li><a href="distribution.html">DISPENSING OF MEDICATON</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="header">Progress Goal</div>
+        <div class="filter-section">
+            <label for="building">ตึก: </label>
+            <select id="building">
+                <option value="all">ทั้งหมด</option>
+            </select>
+            <button id="exportExcelBtn" style="margin-left: 10px; padding: 8px 15px; background-color: var(--button-primary); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Dowload
+            </button>
+        </div>
+
+        <div class="patient-list" id="patientList">
+        </div>
+        <div id="noPatientsMessage" style="display: none; text-align: center; color: #777; margin-top: 20px;">
+            ไม่พบผู้ป่วยในตึกที่เลือก.
+        </div>
+    </main>
+</body>
+</html>

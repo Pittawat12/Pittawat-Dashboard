@@ -1,0 +1,364 @@
+/* ==========================================================================
+   Base & Reset Styles
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', 'Kanit', 'Prompt', sans-serif; /* เพิ่ม font ที่เหมาะสม */
+    -webkit-tap-highlight-color: transparent; /* ป้องกันการไฮไลท์เมื่อกดบนมือถือ */
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    background-color: #f1f5f9;
+    min-height: 100vh;
+    overflow-x: hidden; /* ป้องกัน horizontal scrollbar */
+}
+
+/* Class for body when overlay menu is open to prevent background scrolling */
+body.no-scroll {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+/* ==========================================================================
+   Header Bar & Hamburger Menu (แสดงผลเสมอทั้ง Mobile และ Desktop)
+   ========================================================================== */
+.main-header-bar {
+    display: flex; /* แสดงผลเสมอ */
+    position: fixed; /* ติดด้านบน */
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff; /* พื้นหลังสีขาว */
+    padding: 10px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main-header-bar .logo {
+    font-size: 26px;
+    font-weight: bold;
+    color: #ff7f50; /* สีโลโก้ */
+    line-height: 1.2;
+}
+
+/* Hamburger Icon */
+.hamburger-menu {
+    width: 30px;
+    height: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    cursor: pointer;
+    padding: 10px; /* เพิ่ม padding ให้กดง่ายขึ้น */
+    min-width: 44px; /* กำหนดขั้นต่ำตาม guideline ของ mobile UI */
+    min-height: 44px;
+    box-sizing: content-box; /* ให้ padding ไม่รวมใน width/height ที่กำหนด */
+    z-index: 1001;
+    user-select: none; /* ป้องกันการเลือกข้อความ */
+    touch-action: manipulation; /* ปรับปรุงการตอบสนองบนทัชสกรีน */
+}
+
+.hamburger-menu .bar {
+    width: 100%;
+    height: 3px; /* ความหนาของขีด */
+    background-color: #333; /* สีของขีด */
+    border-radius: 3px;
+    transition: all 0.3s ease-in-out; /* เพิ่ม transition */
+}
+
+
+/* ==========================================================================
+   Sidebar for Desktop (ซ่อนเสมอ)
+   ========================================================================== */
+.sidebar-desktop {
+    display: none !important; /* ซ่อน sidebar บนทุกขนาดหน้าจอและ overrides ทุกอย่าง */
+}
+
+/* ==========================================================================
+   Main Content Area (ปรับ padding ด้านบน)
+   ========================================================================== */
+.main-content {
+    margin-left: 0; /* ไม่มีการชดเชย sidebar แล้ว */
+    padding: 20px; /* Padding โดยรวม */
+    padding-top: 60px; /* ชดเชยความสูงของ fixed header bar */
+    background-color: #FFF8DC; /* สีพื้นหลังตามโค้ดเดิมของคุณ */
+    min-height: 100vh; /* ให้ครอบคลุมความสูงหน้าจอ */
+    display: flex; /* ใช้ flex เพื่อจัดกึ่งกลางเนื้อหา */
+    flex-direction: column; /* จัดเรียงเนื้อหาในแนวตั้ง */
+    align-items: center; /* จัดกึ่งกลางเนื้อหาตามแนวนอน */
+    overflow-y: auto; /* อนุญาตให้ scroll ได้ถ้าเนื้อหาเกิน */
+    z-index: 1;
+    position: relative;
+}
+
+/* ==========================================================================
+   Form Styles (Applies to both Desktop and Mobile, unless overridden by media queries)
+   ========================================================================== */
+.physical-container {
+   width: 100%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   padding: 0;
+   margin-top: 40px; /* เพิ่ม margin ด้านบน */
+}
+
+.card1 {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 500px; /* กำหนด max-width ให้ form */
+}
+
+.card1 h2 {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #000000;
+}
+
+#prepForm label {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #000000;
+}
+
+#prepForm select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: #fefefe;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C197.917L146.205%2C57.122c-1.807-1.804-4.208-2.812-6.703-2.812s-4.896%2C1.008-6.703%2C2.812L5.4%2C197.917c-3.614%2C3.617-3.614%2C9.484%2C0%2C13.101c3.621%2C3.617%2C9.489%2C3.617%2C13.101%2C0L146.205%2C76.918l127.703%2C127.701c3.614%2C3.617%2C9.484%2C3.617%2C13.101%2C0C290.614%2C207.399%2C290.614%2C201.534%2C287%2C197.917z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+    background-size: 12px auto;
+}
+#prepForm select:focus {
+    outline: none;
+    border-color: #007BFF;
+    background-color: #f0f8ff;
+}
+
+.checkbox-group {
+    margin-bottom: 20px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #444;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #007bff;
+    cursor: pointer;
+}
+
+#prepForm button[type="submit"] {
+    width: 100%;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#prepForm button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* ==========================================================================
+   Overlay Menu (Pop-up Menu) - ปรับให้แสดงผลเหมือนกันบนทุกอุปกรณ์
+   ========================================================================== */
+.overlay-menu {
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7); /* พื้นหลังดำโปร่งแสง */
+    opacity: 0; /* ซ่อนเริ่มต้น */
+    visibility: hidden; /* ซ่อนเริ่มต้น */
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    display: flex; /* ใช้ flexbox เพื่อจัดกึ่งกลางเนื้อหา */
+    justify-content: center; /* จัดกึ่งกลางแนวนอน */
+    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
+    -webkit-overflow-scrolling: touch; /* เพื่อการ scroll ที่ราบรื่นบน iOS */
+}
+
+.overlay-menu.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay-menu .nav-container {
+    background-color: #fff; /* พื้นหลังเมนูสีขาว */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 350px; /* จำกัดความกว้างของเมนู */
+    text-align: center;
+    position: relative; /* สำหรับ close button */
+    max-height: 90vh; /* จำกัดความสูงเผื่อเมนูยาวๆ */
+    overflow-y: auto; /* ให้ scroll ได้ถ้าเมนูยาวเกิน */
+}
+
+.overlay-menu .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: #333;
+    cursor: pointer;
+    z-index: 2001;
+    user-select: none;
+    touch-action: manipulation;
+    padding: 5px; /* เพิ่ม padding ให้กดง่ายขึ้น */
+    min-width: 44px; /* กำหนดขั้นต่ำตาม guideline ของ mobile UI */
+    min-height: 44px;
+    box-sizing: content-box;
+    display: flex; /* จัดกึ่งกลาง 'x' */
+    justify-content: center;
+    align-items: center;
+}
+
+.overlay-menu .sidebar-content-overlay {
+    width: 100%;
+    padding-top: 20px; /* เผื่อที่ว่างสำหรับ close button */
+}
+
+.overlay-menu .logo-overlay {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #ff7f50;
+    line-height: 1.2;
+}
+
+.overlay-menu .nav-list {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.overlay-menu .nav-list li {
+    margin-bottom: 15px; /* ระยะห่างระหว่างรายการเมนู */
+    width: 100%;
+}
+
+.overlay-menu .nav-list a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    font-size: 16px;
+    color: #333;
+    background-color: #f0f0f0; /* สีพื้นหลังปุ่มเมนู */
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    text-align: center; /* จัดข้อความกึ่งกลาง */
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.overlay-menu .nav-list a:hover,
+.overlay-menu .nav-list a.active {
+    background-color: #ff6f61; /* สีพื้นหลังเมื่อ hover/active */
+    color: white;
+}
+
+/* ==========================================================================
+   Smaller Screens (e.g., iPhone SE, older Android phones)
+   ========================================================================== */
+@media (max-width: 374px) {
+    .main-header-bar {
+        padding: 8px 15px;
+    }
+    .main-header-bar .logo {
+        font-size: 16px;
+    }
+    .hamburger-menu {
+        width: 25px;
+        height: 20px;
+        min-width: 35px;
+        min-height: 35px;
+        padding: 5px;
+    }
+    .hamburger-menu .bar {
+        height: 2px;
+    }
+    .main-content {
+        padding: 10px;
+        padding-top: 55px; /* ปรับ padding สำหรับ header ที่เล็กลง */
+    }
+    .card1 {
+        padding: 15px;
+    }
+    .card1 h2 {
+        font-size: 18px;
+    }
+    #prepForm label, #prepForm select, #prepForm button {
+        font-size: 13px;
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+    .checkbox-group label {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    .checkbox-group input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+    .overlay-menu .nav-container {
+        padding: 10px;
+        max-width: 95%; /* ปรับขนาดเมนูย่อยลง */
+    }
+    .overlay-menu .close-btn {
+        font-size: 28px;
+        top: 2px;
+        right: 2px;
+    }
+    .overlay-menu .logo-overlay {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+    .overlay-menu .nav-list li {
+        margin: 6px 0;
+    }
+    .overlay-menu .nav-list a {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}

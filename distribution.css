@@ -1,0 +1,417 @@
+/* distribution.css */
+
+/* Variables - Make sure these are defined or inherited */
+:root {
+    --primary-color: #ed6c41; /* Orange */
+    --secondary-color: #ffffff; /* White */
+    --text-color: #333; /* Dark gray */
+    --background-color: #f1f5f9; /* Light gray background */
+    --card-bg: #ffffff; /* White card background */
+    --border-color: #ddd; /* Light gray border */
+    --button-primary: #007bff; /* Blue for primary buttons */
+    --button-primary-hover: #0056b3; /* Darker blue on hover */
+    --dark-gray: #4b5563; /* Dark gray for secondary text */
+    --danger-color: #dc3545; /* Red for discharge/danger actions */
+    --danger-hover: #c82333; /* Darker red on hover */
+    --light-gray: #e9ecef; /* Light gray for disabled state */
+    --font-family: 'Mitr', sans-serif; /* Adjusted font family for consistency */
+    --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08); /* New shadow variable */
+    --shadow-medium: 0 6px 16px rgba(0, 0, 0, 0.12); /* New shadow variable */
+}
+
+/* Base & Reset Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family); /* Use the defined font family */
+    -webkit-tap-highlight-color: transparent; /* Prevent tap highlight on mobile */
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    background-color: var(--background-color);
+    min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scrollbar */
+    display: flex; /* Use flexbox for overall layout */
+    flex-direction: column;
+}
+
+body.no-scroll {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+/* Header Bar */
+.main-header-bar {
+    justify-content: space-between;
+    width: 100%;
+    background-color: var(--secondary-color);
+    padding: 10px 20px;
+    box-shadow: var(--shadow-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed; /* Fixed header */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.hamburger-menu {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+    padding: 5px; /* Added padding for easier tapping */
+}
+
+.hamburger-menu .bar {
+    width: 100%;
+    height: 3px;
+    background-color: var(--text-color);
+    border-radius: 2px;
+}
+
+/* Overlay Menu */
+.overlay-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1100;
+}
+
+.overlay-menu.open {
+    visibility: visible;
+    opacity: 1;
+}
+
+
+
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 40px;
+    color: var(--secondary-color);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    color: var(--primary-color);
+}
+
+.sidebar-content-overlay {
+    text-align: center;
+    width: 100%;
+    padding: 20px;
+}
+
+.logo-overlay {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.nav-list li {
+    margin-bottom: 20px;
+}
+
+.nav-list a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-size: 20px;
+    padding: 10px 0;
+    display: block;
+    transition: color 0.2s ease;
+}
+
+.nav-list a:hover,
+.nav-list a.active {
+    color: var(--primary-color);
+}
+
+
+/* Main Content Area */
+.main-content {
+    flex-grow: 1;
+    padding: 15px;
+    padding-top: 70px; /* Space for fixed header on mobile */
+    width: 100%;
+    max-width: 100%; /* Ensure it doesn't overflow */
+    box-sizing: border-box;
+    display: flex; /* Use flexbox for vertical centering */
+    flex-direction: column;
+    align-items: center; /* Center horizontally */
+    justify-content: flex-start; /* Align content to the top initially */
+    min-height: calc(100vh - 60px); /* Adjust based on header height */
+}
+
+.discharge-container {
+    display: flex;
+    flex-direction: column; /* Stack cards vertically on mobile */
+    gap: 20px; /* Space between cards */
+    width: 100%;
+    max-width: 450px; /* Max width for single card layout on smaller screens */
+    margin: 20px auto; /* Center the container on smaller screens */
+    align-items: center; /* Center cards within the container */
+}
+
+.card {
+    margin: 25px;
+    background-color: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-medium);
+    width: 100%; /* Full width within its container */
+    max-width: 400px; /* Max width for cards to look good */
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.card h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.form-group, .input-group, .radio-group, .checkbox-group {
+    margin-bottom: 15px;
+    text-align: left; /* Align labels and inputs to the left */
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 15px;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 15px;
+    margin-bottom: 10px;
+    -webkit-appearance: none; /* Remove default dropdown arrow for better styling */
+    -moz-appearance: none;
+    appearance: none;
+    background-color: var(--secondary-color);
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2C197.9c-3.2%2C3.2-8.5%2C3.2-11.7%2C0L146.2%2C71.3L16.2%2C197.9c-3.2%2C3.2-8.5%2C3.2-11.7%2C0c-3.2-3.2-3.2-8.5%2C0-11.7l135.7-135.7c3.2-3.2%2C8.5-3.2%2C11.7%2C0l135.7%2C135.7C290.2%2C189.4%2C290.2%2C194.7%2C287%2C197.9z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+    background-size: 12px auto;
+}
+
+select:disabled {
+    background-color: var(--light-gray);
+    cursor: not-allowed;
+}
+
+.patient-details p {
+    font-size: 16px;
+    color: var(--dark-gray);
+    margin-bottom: 5px;
+}
+
+.radio-group label, .checkbox-group label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.radio-group input[type="radio"], .checkbox-group input[type="checkbox"] {
+    margin-right: 10px;
+    min-width: 20px; /* Ensure a consistent size */
+    min-height: 20px;
+    accent-color: var(--primary-color); /* Highlight color */
+}
+
+.radio-group input[type="radio"]:disabled, .checkbox-group input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: 15px;
+    background-color: var(--button-primary); /* Default to primary blue */
+    color: var(--secondary-color);
+}
+
+button[type="submit"]:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+button[type="submit"]:disabled {
+    background-color: var(--light-gray);
+    cursor: not-allowed;
+    color: var(--dark-gray);
+}
+
+/* Specific button styling based on radio selection */
+#dischargePermanently:checked ~ #submitDischarge {
+    background-color: var(--danger-color); /* Red when Discharge is selected */
+}
+
+#dischargePermanently:checked ~ #submitDischarge:hover:not(:disabled) {
+    background-color: var(--danger-hover); /* Darker red on hover */
+}
+
+/* Desktop sidebar override removed for popup effect */
+/* Adjustments for smaller tablets (e.g., iPad Mini in portrait) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .main-content {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .discharge-container {
+        max-width: 760px; /* Slightly smaller max-width for tablets */
+    }
+
+    .card {
+        min-width: 300px;
+        max-width: 360px;
+        padding: 20px;
+    }
+
+    .card h2 {
+        font-size: 20px;
+    }
+
+    label, select, button {
+        font-size: 14px;
+    }
+}
+
+
+/* Adjustments for smaller screens (mobile portrait up to 480px) */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px;
+        padding-top: 65px; /* Adjust for mobile fixed header */
+    }
+    .card {
+        padding: 15px;
+        border-radius: 10px;
+        max-width: 100%; /* Ensure card fits within screen */
+    }
+    .card h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+    .filter-group label, .patient-details p, .radio-group label, .checkbox-group label {
+        font-size: 14px;
+    }
+    .radio-group input, .checkbox-group input {
+        width: 18px;
+        height: 18px;
+    }
+    button[type="submit"] { /* General button style */
+        font-size: 16px;
+        padding: 10px;
+    }
+}
+
+/* Very small mobile devices (e.g., iPhone 5/SE - max-width: 374px) */
+@media (max-width: 374px) {
+    .main-header-bar {
+    justify-content: space-between;
+        padding: 8px 15px; /* Smaller padding for header */
+    }
+    .main-header-bar .logo {
+        font-size: 16px; /* Smaller logo font size */
+    }
+    .hamburger-menu {
+    margin-left: auto;
+        width: 25px;
+        height: 20px;
+        min-width: 35px; /* Ensure a clickable area */
+        min-height: 35px;
+        padding: 5px;
+    }
+    .hamburger-menu .bar {
+        height: 2px; /* Thinner bars for hamburger icon */
+    }
+    .main-content {
+        padding: 10px;
+        padding-top: 55px; /* Adjust padding for smaller header */
+    }
+    .card { /* Assuming .card is similar to .card1 in process.css for content */
+        padding: 15px; /* Smaller padding for cards */
+    }
+    .card h2 {
+        font-size: 18px; /* Smaller heading in cards */
+    }
+    .filter-group label, .patient-details p, .radio-group label, .checkbox-group label, select, button {
+        font-size: 13px; /* Smaller font sizes for readability */
+        padding: 8px; /* Smaller padding for inputs/buttons */
+    }
+    .radio-group input, .checkbox-group input {
+        width: 16px;
+        height: 16px;
+    }
+    button[type="submit"] {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* Overlay Menu adjustments for smallest screens */
+    .overlay-menu .logo-overlay {
+        font-size: 20px;
+        margin-bottom: 25px;
+    }
+    .overlay-menu .nav-list li {
+        margin-bottom: 18px;
+    }
+    .overlay-menu .nav-list a {
+        font-size: 18px;
+    }
+}
+

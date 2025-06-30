@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Register Patient</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="script.js" defer></script>
+</head>
+<body>
+    <header class="main-header-bar">
+        <div class="logo">Hip Go Goal</div>
+        <div class="hamburger-menu" id="hamburgerMenu">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </header>
+
+    <nav class="overlay-menu" id="overlayMenu">
+        <div class="nav-container">
+            <div class="close-btn" id="closeMenu">&times;</div>
+            <div class="sidebar-content-overlay">
+                <div class="logo-overlay">Hip Go Goal</div> <ul class="nav-list">
+                   <li><a href="progress.html">HOME</a></li>
+                    <li><a href="index.html">NEW PATIENT</a></li>
+                    <li><a href="process.html">PHYSICAL</a></li>
+                    <li><a href="discharge.html">REGISTER PROCESS</a></li>
+                    <li><a href="delay.html">DELAY PROCESS</a></li>
+                    <li><a href="distribution.html">DISPENSING OF MEDICATON</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content">
+        <div class="card">
+            <h2>Register ข้อมูลผู้ป่วย</h2>
+            <form id="registerForm">
+                <input type="text" id="name" name="name" placeholder="Name" required />
+                <input type="text" id="building" name="building" placeholder="ตึก" required />
+                <input type="text" id="bed" name="bed" placeholder="เตียง" />
+                <label for="admissionDate" class="input-label">Admission Date</label>
+                <input type="date" id="admissionDate" name="admissionDate" required />
+                <input type="text" id="Diagnosis" name="Diagnosis" placeholder="Diagnosis" required />
+                <label for="operationDate" class="input-label">Operation Date & time</label>
+                <input type="datetime-local" id="operationDate" name="Operation Date & time" required/>
+                <input type="text" id="goal" name="goal" placeholder="Goal Ambulation" />
+                <button type="submit">REGISTER</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Discharge Patient - Hip Go Goal</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="distribution.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header-bar">
+        <div class="logo">Hip Go Goal</div>
+        <div class="hamburger-menu" id="hamburgerMenu">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </header>
+
+    <nav class="overlay-menu" id="overlayMenu">
+        <div class="nav-container">
+            <div class="close-btn" id="closeMenu">&times;</div>
+            <div class="sidebar-content-overlay">
+                <div class="logo-overlay">Hip Go Goal</div>
+                <ul class="nav-list">
+                    <li><a href="progress.html">HOME</a></li>
+                    <li><a href="index.html">NEW PATIENT</a></li>
+                    <li><a href="process.html">PHYSICAL</a></li>
+                    <li><a href="discharge.html">REGISTER PROCESS</a></li>
+                    <li><a href="delay.html">DELAY PROCESS</a></li>
+                    <li><a href="distribution.html" class="active">DISPENSING OF MEDICATON</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="card">
+            <h2>การจำหน่ายผู้ป่วยและการจ่ายยา</h2>
+            
+            <div class="filter-group">
+                <label for="buildingFilter">เลือกตึก:</label>
+                <select id="buildingFilter">
+                    <option value="">-- เลือกตึก --</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="patientFilter">เลือกผู้ป่วย (HN - ชื่อ):</label>
+                <select id="patientFilter" disabled>
+                    <option value="">-- เลือกผู้ป่วย --</option>
+                </select>
+            </div>
+
+            <div class="patient-details" id="patientDetails">
+            </div>
+
+            <div class="discharge-form-section">
+                <h3>จัดการการจำหน่ายผู้ป่วย</h3>
+                <form id="dischargeForm">
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="dischargeOption" value="today" id="dischargeToday">
+                            ผู้ป่วยกลับบ้านวันนี้
+                        </label>
+                        <label>
+                            <input type="radio" name="dischargeOption" value="tomorrow" id="dischargeTomorrow">
+                            ผู้ป่วยกลับบ้านพรุ่งนี้
+                        </label>
+                        <label>
+                            <input type="radio" name="dischargeOption" value="discharge" id="dischargePermanently">
+                            Discharge
+                        </label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="statusCheckbox" value="รอรถพยาบาล"> รอรถพยาบาล</label>
+                        <label><input type="checkbox" name="statusCheckbox" value="รอผลแล็บ"> รอผลแล็บ</label>
+                        <label><input type="checkbox" name="statusCheckbox" value="รับยาครบแล้ว"> รับยาครบแล้ว</label>
+                        <label><input type="checkbox" name="statusCheckbox" value="นัดวันหลัง"> นัดวันหลัง</label>
+                        <label><input type="checkbox" name="statusCheckbox" value="อื่นๆ"> อื่นๆ</label>
+                    </div>
+                    
+                    <button type="submit" id="submitDischarge">OK</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="distribution.js" defer></script>
+</body>
+</html>

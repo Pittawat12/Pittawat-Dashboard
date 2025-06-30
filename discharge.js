@@ -1,0 +1,399 @@
+// discharge.js
+
+import { db } from './firebase.js';
+import { collection, addDoc, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOM Content Loaded. Initializing scripts for discharge.html.');
+
+    // === Hamburger Menu Functionality ===
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    const overlayMenu = document.getElementById('overlayMenu');
+    const closeMenuBtn = document.getElementById('closeMenu');
+    // Select all nav links regardless of where they are (desktop-nav or overlay-menu)
+    const allNavLinks = document.querySelectorAll('.nav-list a');
+    const body = document.body;
+
+    if (hamburgerMenu && overlayMenu && closeMenuBtn) {
+        hamburgerMenu.addEventListener('click', (event) => {
+            event.stopPropagation();
+            overlayMenu.classList.add('open');
+            body.classList.add('no-scroll');
+        });
+
+        closeMenuBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            overlayMenu.classList.remove('open');
+            body.classList.remove('no-scroll');
+        });
+
+        // Close overlay when a navigation link inside the OVERLAY is clicked
+        document.querySelectorAll('.overlay-menu .nav-list a').forEach(link => {
+            link.addEventListener('click', () => {
+                overlayMenu.classList.remove('open');
+                body.classList.remove('no-scroll');
+            });
+        });
+
+        // Close overlay if user clicks outside the menu content
+        overlayMenu.addEventListener('click', (event) => {
+            if (event.target === overlayMenu) {
+                overlayMenu.classList.remove('open');
+                body.classList.remove('no-scroll');
+            }
+        });
+    }
+
+    // === Active Link Logic ===
+    const currentPath = window.location.pathname.split('/').pop();
+    allNavLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        } else if (currentPath === '' && link.getAttribute('href') === 'progress.html') {
+            link.classList.add('active');
+        }
+    });
+
+    // === Form Logic for Register Process ===
+    const buildingFilterSelect = document.getElementById('buildingFilter');
+    const patientFilterSelect = document.getElementById('patientFilter');
+    const registerProcessForm = document.getElementById('registerProcessForm');
+
+    const patientNameDisplay = document.getElementById('patientNameDisplay');
+
+    const sittingStatusCheckbox = document.getElementById('sittingStatus');
+    const sittingTextSpan = document.getElementById('sittingText');
+    const sittingTimeStatusSpan = document.getElementById('sittingTimeStatus');
+    const sittingDelayReasonTextarea = document.getElementById('sittingDelayReason');
+
+    const standingStatusCheckbox = document.getElementById('standingStatus');
+    const standingTextSpan = document.getElementById('standingText');
+    const standingTimeStatusSpan = document.getElementById('standingTimeStatus');
+    const standingDelayReasonTextarea = document.getElementById('standingDelayReason');
+
+    const goalStatusCheckbox = document.getElementById('goalStatus');
+    const goalTextSpan = document.getElementById('goalText');
+    const goalTimeStatusSpan = document.getElementById('goalTimeStatus');
+    const goalDelayReasonTextarea = document.getElementById('goalDelayReason');
+
+    let currentPatientOperationDate = null; // Store operation date of selected patient
+    let currentPatientName = ''; // Store the name of the selected patient
+
+    // Function to fetch unique building IDs from the 'patients' collection
+    const fetchBuildings = async () => {
+        console.log("Fetching unique building IDs from 'patients' collection...");
+        try {
+            const patientsSnapshot = await getDocs(collection(db, "patients"));
+            buildingFilterSelect.innerHTML = '<option value="">-- เลือกตึก --</option>'; // Clear existing options
+
+            const uniqueBuildings = new Set();
+            if (patientsSnapshot.empty) {
+                console.log("No 'patients' documents found.");
+                const noBuildingOption = document.createElement('option');
+                noBuildingOption.value = '';
+                noBuildingOption.textContent = 'ไม่มีตึกในระบบ (ยังไม่มีผู้ป่วยลงทะเบียน)';
+                buildingFilterSelect.appendChild(noBuildingOption);
+            } else {
+                patientsSnapshot.forEach(doc => {
+                    const buildingId = doc.data().building;
+                    if (buildingId) {
+                        uniqueBuildings.add(buildingId);
+                    }
+                });
+
+                if (uniqueBuildings.size === 0) {
+                    const noBuildingOption = document.createElement('option');
+                    noBuildingOption.value = '';
+                    noBuildingOption.textContent = 'ไม่มีตึกในระบบ (ข้อมูลผู้ป่วยไม่สมบูรณ์)';
+                    buildingFilterSelect.appendChild(noBuildingOption);
+                } else {
+                    const sortedBuildings = Array.from(uniqueBuildings).sort();
+                    sortedBuildings.forEach(buildingId => {
+                        const option = document.createElement('option');
+                        option.value = buildingId;
+                        option.textContent = `ตึก ${buildingId}`;
+                        buildingFilterSelect.appendChild(option);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching unique buildings from patients: ", error);
+            alert("เกิดข้อผิดพลาดในการดึงข้อมูลตึก: " + error.message);
+        }
+    };
+
+    // Function to fetch and populate patients based on selected building
+    const fetchPatientsByBuilding = async (buildingId) => {
+        patientFilterSelect.innerHTML = '<option value="">-- เลือกผู้ป่วย --</option>'; // Clear existing options
+        if (!buildingId) {
+            clearPatientStatusAndInfo();
+            return;
+        }
+
+        try {
+            const patientsQuery = query(collection(db, "patients"), where("building", "==", buildingId));
+            const patientsSnapshot = await getDocs(patientsQuery);
+
+            if (patientsSnapshot.empty) {
+                const noPatientsOption = document.createElement('option');
+                noPatientsOption.value = '';
+                noPatientsOption.textContent = 'ไม่มีผู้ป่วยในตึกนี้';
+                patientFilterSelect.appendChild(noPatientsOption);
+                clearPatientStatusAndInfo();
+            } else {
+                patientsSnapshot.forEach(doc => {
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = doc.data().name || doc.id; // Display patient name if available, else ID
+                    patientFilterSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching patients for building: ", error);
+            alert("เกิดข้อผิดพลาดในการดึงข้อมูลผู้ป่วย: " + error.message);
+        }
+    };
+
+    // Function to display selected patient's information (only name) and update status checkboxes
+    const displayPatientNameAndStatus = async (patientId) => {
+        clearPatientStatusAndInfo(); // Clear previous info and reset checkboxes
+
+        if (!patientId) {
+            patientNameDisplay.textContent = '';
+            return;
+        }
+
+        try {
+            const patientDocRef = doc(db, "patients", patientId);
+            const patientDocSnap = await getDoc(patientDocRef);
+
+            if (patientDocSnap.exists()) {
+                const data = patientDocSnap.data();
+                patientNameDisplay.textContent = `ชื่อผู้ป่วย: ${data.name || 'N/A'}`;
+                currentPatientOperationDate = data.operationDate; // Store operation date
+                currentPatientName = data.name || 'N/A'; // Store patient name
+                updateStatusDisplay(); // Update display based on new patient's operation date
+            } else {
+                console.log("No such patient document!");
+                patientNameDisplay.textContent = '';
+                currentPatientName = '';
+                currentPatientOperationDate = null;
+            }
+        } catch (error) {
+            console.error("Error fetching patient details: ", error);
+            alert("เกิดข้อผิดพลาดในการดึงข้อมูลผู้ป่วย: " + error.message);
+        }
+    };
+
+    // Helper to clear patient name and reset checkboxes and delay reasons
+    const clearPatientStatusAndInfo = () => {
+        patientNameDisplay.textContent = '';
+        currentPatientOperationDate = null;
+        currentPatientName = '';
+
+        sittingStatusCheckbox.checked = false;
+        sittingTextSpan.style.color = '';
+        sittingTimeStatusSpan.textContent = '';
+        sittingDelayReasonTextarea.style.display = 'none';
+        sittingDelayReasonTextarea.value = '';
+
+        standingStatusCheckbox.checked = false;
+        standingTextSpan.style.color = '';
+        standingTimeStatusSpan.textContent = '';
+        standingDelayReasonTextarea.style.display = 'none';
+        standingDelayReasonTextarea.value = '';
+
+        goalStatusCheckbox.checked = false;
+        goalTextSpan.style.color = '';
+        goalTimeStatusSpan.textContent = '';
+        goalDelayReasonTextarea.style.display = 'none';
+        goalDelayReasonTextarea.value = '';
+    };
+
+    // Function to calculate time difference and update checkbox text colors and time status
+    const updateStatusDisplay = () => {
+        if (!currentPatientOperationDate) {
+            console.log("No operation date available for status check.");
+            sittingTextSpan.style.color = ''; sittingTimeStatusSpan.textContent = '';
+            standingTextSpan.style.color = ''; standingTimeStatusSpan.textContent = '';
+            goalTextSpan.style.color = ''; goalTimeStatusSpan.textContent = '';
+            // Ensure delay reason textareas are hidden if no operation date
+            sittingDelayReasonTextarea.style.display = 'none'; sittingDelayReasonTextarea.value = '';
+            standingDelayReasonTextarea.style.display = 'none'; standingDelayReasonTextarea.value = '';
+            goalDelayReasonTextarea.style.display = 'none'; goalDelayReasonTextarea.value = '';
+            return;
+        }
+
+        const operationDateTime = new Date(currentPatientOperationDate);
+        const now = new Date();
+        const diffMs = now.getTime() - operationDateTime.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        // --- Sitting: 24 hours ---
+        if (diffHours <= 24) {
+            sittingTextSpan.style.color = 'blue';
+            sittingTimeStatusSpan.textContent = '(อยู่ในเกณฑ์)';
+        } else {
+            sittingTextSpan.style.color = 'red';
+            sittingTimeStatusSpan.textContent = `(เกิน ${Math.floor(diffHours)} ชม.)`;
+        }
+        // Update visibility of delay reason based on overdue status and checkbox state
+        sittingDelayReasonTextarea.style.display = (diffHours > 24 && sittingStatusCheckbox.checked) ? 'block' : 'none';
+        if (sittingDelayReasonTextarea.style.display === 'none') sittingDelayReasonTextarea.value = '';
+
+
+        // --- Standing & Goal Ambulation: 48 hours ---
+        if (diffHours <= 48) {
+            standingTextSpan.style.color = 'blue';
+            standingTimeStatusSpan.textContent = '(อยู่ในเกณฑ์)';
+            goalTextSpan.style.color = 'blue';
+            goalTimeStatusSpan.textContent = '(อยู่ในเกณฑ์)';
+        } else {
+            standingTextSpan.style.color = 'red';
+            standingTimeStatusSpan.textContent = `(เกิน ${Math.floor(diffHours)} ชม.)`;
+            goalTextSpan.style.color = 'red';
+            goalTimeStatusSpan.textContent = `(เกิน ${Math.floor(diffHours)} ชม.)`;
+        }
+        standingDelayReasonTextarea.style.display = (diffHours > 48 && standingStatusCheckbox.checked) ? 'block' : 'none';
+        if (standingDelayReasonTextarea.style.display === 'none') standingDelayReasonTextarea.value = '';
+
+        goalDelayReasonTextarea.style.display = (diffHours > 48 && goalStatusCheckbox.checked) ? 'block' : 'none';
+        if (goalDelayReasonTextarea.style.display === 'none') goalDelayReasonTextarea.value = '';
+    };
+
+    // Helper function to check if a status is "overdue" based on operation date
+    const isOverdue = (thresholdHours) => {
+        if (!currentPatientOperationDate) return false;
+        const operationDateTime = new Date(currentPatientOperationDate);
+        const now = new Date();
+        const diffMs = now.getTime() - operationDateTime.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+        return diffHours > thresholdHours;
+    };
+
+
+    // Initial load: Fetch buildings when the page loads
+    await fetchBuildings();
+
+    // Event listener for building selection change
+    buildingFilterSelect.addEventListener('change', () => {
+        const selectedBuildingId = buildingFilterSelect.value;
+        fetchPatientsByBuilding(selectedBuildingId);
+        // Clear patient info and reset checkboxes when building changes
+        clearPatientStatusAndInfo();
+    });
+
+    // Event listener for patient selection change
+    patientFilterSelect.addEventListener('change', () => {
+        const selectedPatientId = patientFilterSelect.value;
+        displayPatientNameAndStatus(selectedPatientId);
+    });
+
+    // --- Event Listeners for Checkbox Changes ---
+    // These listeners trigger `updateStatusDisplay` to recalculate colors and toggle delay reason textareas
+    sittingStatusCheckbox.addEventListener('change', updateStatusDisplay);
+    standingStatusCheckbox.addEventListener('change', updateStatusDisplay);
+    goalStatusCheckbox.addEventListener('change', updateStatusDisplay);
+
+
+    // Form submission for Register Process
+    registerProcessForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const selectedBuildingId = buildingFilterSelect.value;
+        const selectedPatientId = patientFilterSelect.value;
+
+        if (!selectedBuildingId || !selectedPatientId) {
+            alert("กรุณาเลือกตึกและผู้ป่วย");
+            return;
+        }
+
+        // ตรวจสอบว่ามีชื่อผู้ป่วยหรือไม่
+        if (!currentPatientName) {
+            alert("ไม่สามารถดึงชื่อผู้ป่วยได้ กรุณาลองเลือกผู้ป่วยใหม่อีกครั้ง");
+            return;
+        }
+
+        const patientDataForSave = {
+            patientId: selectedPatientId,
+            patientName: currentPatientName,
+            buildingId: selectedBuildingId,
+            timestamp: new Date()
+        };
+
+        const statuses = {};
+        let hasError = false;
+
+        // Sitting Status
+        if (sittingStatusCheckbox.checked) {
+            const delayReason = sittingDelayReasonTextarea.value.trim();
+            if (isOverdue(24) && delayReason === '') {
+                alert("กรุณาระบุเหตุผลล่าช้าสำหรับ Sitting (หากเกินเวลา)");
+                hasError = true;
+            }
+            statuses.sitting = {
+                completed: true,
+                delayReason: delayReason === '' ? null : delayReason // Save null if empty
+            };
+        } else {
+            statuses.sitting = { completed: false }; // Record as not completed if unchecked
+        }
+
+
+        // Standing Status
+        if (standingStatusCheckbox.checked) {
+            const delayReason = standingDelayReasonTextarea.value.trim();
+            if (isOverdue(48) && delayReason === '') {
+                alert("กรุณาระบุเหตุผลล่าช้าสำหรับ Standing (หากเกินเวลา)");
+                hasError = true;
+            }
+            statuses.standing = {
+                completed: true,
+                delayReason: delayReason === '' ? null : delayReason
+            };
+        } else {
+            statuses.standing = { completed: false };
+        }
+
+        // Goal Ambulation Status
+        if (goalStatusCheckbox.checked) {
+            const delayReason = goalDelayReasonTextarea.value.trim();
+            if (isOverdue(48) && delayReason === '') {
+                alert("กรุณาระบุเหตุผลล่าช้าสำหรับ Goal Ambulation (หากเกินเวลา)");
+                hasError = true;
+            }
+            statuses.goal_ambulation = {
+                completed: true,
+                delayReason: delayReason === '' ? null : delayReason
+            };
+        } else {
+            statuses.goal_ambulation = { completed: false };
+        }
+
+        if (hasError) {
+            return;
+        }
+
+        // Check if at least one checkbox is checked for submission
+        if (!sittingStatusCheckbox.checked && !standingStatusCheckbox.checked && !goalStatusCheckbox.checked) {
+            alert("กรุณาเลือกสถานะการทำกายภาพอย่างน้อยหนึ่งรายการ");
+            return;
+        }
+
+
+        patientDataForSave.statuses = statuses;
+
+        try {
+            // !!! เปลี่ยนชื่อ Collection เป็น register_process_statuses ให้ชัดเจนและแยกกัน !!!
+            await addDoc(collection(db, "register_process_statuses"), patientDataForSave);
+            alert("บันทึกสถานะการทำกายภาพสำเร็จ!");
+            registerProcessForm.reset();
+            clearPatientStatusAndInfo(); // Clear info after submission
+            await fetchBuildings(); // Re-fetch buildings in case new patient added earlier
+        } catch (error) {
+            console.error("Error saving document: ", error);
+            alert("เกิดข้อผิดพลาดในการบันทึกสถานะ: " + error.message);
+        }
+    });
+});

@@ -1,0 +1,344 @@
+/* discharge.css */
+
+
+
+:root {
+    --primary-color: #ed6c41; /* สีส้มตามรูป */
+    --secondary-color: #ffffff; /* สีขาว */
+    --text-color: #333; /* สีเทาเข้ม */
+    --background-color: #f0f2f5; /* สีพื้นหลังอ่อนๆ */
+    --card-bg: #ffffff; /* สีพื้นหลัง Card */
+    --border-color: #ddd; /* สีขอบ */
+    --button-primary: #007bff; /* สีน้ำเงินสำหรับปุ่มหลัก */
+    --button-primary-hover: #0056b3; /* สีน้ำเงินเข้มเมื่อ hover */
+    --delay-reason-bg: #fff8f8; /* สีพื้นหลังสำหรับช่องเหตุผลล่าช้า */
+    --delay-reason-border: #ffcccc; /* สีขอบสำหรับช่องเหตุผลล่าช้า */
+    --delay-reason-text: #c0392b; /* สีข้อความสำหรับช่องเหตุผลล่าช้า */
+}
+
+body {
+    /* เปลี่ยน font-family กลับเป็น Mitr */
+    font-family: 'Mitr', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: var(--background-color);
+    display: flex; /* ใช้ flexbox สำหรับ main layout */
+    min-height: 100vh; /* ทำให้ body สูงเต็มหน้าจอ */
+    flex-direction: column; /* จัดเรียงในแนวตั้งสำหรับ mobile และ desktop (เพื่อให้ Header อยู่ด้านบน) */
+}
+
+body.no-scroll {
+    overflow: hidden; /* Prevent scrolling when overlay is open */
+}
+
+/* Header (main-header-bar) - now for both mobile & desktop */
+.main-header-bar {
+    width: 100%;
+    background-color: var(--secondary-color); /* White background for header */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between; /* Space out logo and hamburger/nav */
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Stronger shadow for top bar */
+    height: 60px; /* Define a fixed height for the header */
+}
+
+.main-header-bar .logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-color); /* Orange "great job NURSING" */
+    line-height: 1.2;
+    text-align: left; /* Align logo to left */
+    margin-right: auto; /* Push logo to the left, and push hamburger menu to the right */
+}
+
+/* Hamburger Menu - Always visible now */
+.hamburger-menu {
+    width: 30px;
+    height: 25px;
+    display: flex; /* Always display hamburger menu */
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    z-index: 21;
+}
+
+.hamburger-menu .bar {
+    width: 100%;
+    height: 3px;
+    background-color: var(--text-color); /* Dark gray for bars */
+    border-radius: 2px;
+}
+
+/* Overlay Menu - Universal Pop-up Menu for Mobile and Desktop */
+.overlay-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dim background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s, opacity 0.3s ease-in-out;
+}
+
+.overlay-menu.open {
+    visibility: visible;
+    opacity: 1;
+}
+
+.overlay-menu .nav-container {
+    background-color: var(--secondary-color);
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 350px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.overlay-menu .close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 35px;
+    cursor: pointer;
+    color: var(--text-color);
+    font-weight: 300;
+}
+
+.overlay-menu .logo-overlay {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.overlay-menu .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.overlay-menu .nav-list li {
+    margin-bottom: 10px;
+}
+
+.overlay-menu .nav-list a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    background-color: #f0f0f0;
+    border: 1px solid var(--border-color);
+    font-weight: bold;
+}
+
+.overlay-menu .nav-list a:hover {
+    background-color: #e0e0e0;
+}
+
+.overlay-menu .nav-list a.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Removed desktop-nav styles as the HTML element is removed */
+
+/* Main Content Area */
+.main-content {
+    flex-grow: 1;
+    padding: 15px;
+    padding-top: 75px; /* Space for the fixed header */
+    margin-left: 0; /* Ensure no left margin from old sidebar */
+    display: flex;
+    justify-content: center; /* Center the form horizontally */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.register-process-container { /* Main form container */
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Limit width as per previous design */
+    box-sizing: border-box;
+    margin-top: 0; /* Remove specific top margin for consistency */
+}
+
+h2 {
+    text-align: center;
+    color: #000;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #000;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 15px;
+    background-color: #fdfdfd;
+    margin-bottom: 10px;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-color), 0.25);
+}
+
+textarea.delay-reason {
+    height: 60px;
+    resize: vertical;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    background-color: var(--delay-reason-bg);
+    border: 1px solid var(--delay-reason-border);
+    color: var(--delay-reason-text);
+}
+
+#patientNameDisplay {
+    margin-bottom: 20px;
+    min-height: 20px;
+    color: var(--text-color);
+}
+
+h3 {
+    font-size: 18px;
+    color: #000;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+.status-group {
+    margin-bottom: 15px;
+}
+
+.status-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    font-weight: normal;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.status-label input[type="checkbox"] {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.status-label input[type="checkbox"]:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    position: relative;
+}
+
+.status-label input[type="checkbox"]:checked::before {
+    content: '\2713';
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+.time-status {
+    margin-left: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--button-primary);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--button-primary-hover);
+}
+
+/* Media Queries for Desktop View - Simplified */
+@media (min-width: 768px) {
+    body {
+        flex-direction: column;
+        padding-top: 0;
+    }
+
+    .main-header-bar {
+        justify-content: space-between; /* Keep logo left, hamburger right */
+        width: 100%;
+    }
+
+    /* Hamburger menu is now always displayed, no media query needed here to change its display */
+    /* overlay-menu is also always displayed, no media query needed here to change its display */
+
+    .main-content {
+        margin-left: 0;
+        padding-top: 75px;
+        justify-content: center;
+    }
+
+    .register-process-container {
+        margin-top: 20px; /* Add some top margin to the form on desktop if desired, adjust as needed */
+    }
+}

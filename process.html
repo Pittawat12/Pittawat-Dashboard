@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="th">
+  <link rel="icon" href="data:,">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Physical Preparation</title>
+    <link rel="stylesheet" href="process.css" />
+    <script type="module" src="process.js" defer></script>
+</head>
+<body>
+    <header class="main-header-bar" id="mobileHeader">
+        <div class="logo">Hip Go Goal</div>
+        <div class="hamburger-menu" id="hamburgerMenu">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </header>
+
+    <nav class="overlay-menu" id="overlayMenu">
+        <div class="nav-container">  <div class="close-btn" id="closeMenu">&times;</div>
+            <div class="sidebar-content-overlay">
+                <div class="logo-overlay">Hip Go Goal</div> <ul class="nav-list">
+                   <li><a href="progress.html">HOME</a></li>
+                    <li><a href="index.html">NEW PATIENT</a></li>
+                    <li><a href="process.html">PHYSICAL</a></li>
+                    <li><a href="discharge.html">REGISTER PROCESS</a></li>
+                    <li><a href="delay.html">DELAY PROCESS</a></li>
+                    <li><a href="distribution.html" class="active">DISPENSING OF MEDICATON</a></li>
+                </ul>
+            </div>
+        </div>
+     </nav>
+
+    <div class="sidebar-desktop" id="sidebarDesktop">
+        <div class="logo">Hip Go Goal</div>
+        <ul class="nav-list">
+            <li><a href="progress.html">HOME</a></li>
+            <li><a href="index.html">NEW PATIENT</a></li>
+            <li><a href="process.html" class="active">PHYSICAL</a></li>
+            <li><a href="discharge.html">REGISTER PROCESS</a></li>
+            <li><a href="delay.html">DELAY PROCESS</a></li>
+            <li><a href="distribution.html">DISPENSING OF MEDICATON</a></li>
+        </ul>
+    </div>
+
+    <main class="main-content">
+        <div class="physical-container">
+            <div class="card1">
+                <form id="prepForm">
+                    <h2>เตรียมทำกายภาพ</h2>
+
+                    <label for="building">ตึก:</label>
+                    <select id="building" name="building">
+                        <option value="">-- เลือกตึก --</option>
+                    </select>
+
+                    <label for="patient">ชื่อผู้ป่วย:</label>
+                    <select id="patient" name="patient">
+                        <option value="">-- เลือกผู้ป่วย --</option>
+                    </select>
+
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="status" value="อีก30นาที"> เตรียมทำกายภาพ อีก 30 นาที</label>
+                        <label><input type="checkbox" name="status" value="พร้อมทำกายภาพ"> ผู้ป่วยพร้อมทำกายภาพ</label>
+                        <label><input type="checkbox" name="status" value="ไม่พร้อม/มีภาวะแทรกซ้อน"> ยังไม่พร้อม/มีภาวะแทรกซ้อน</label>
+                        <label><input type="checkbox" name="status" value="ออกนอกตึก"> ออกนอกตึก</label>
+                        <label><input type="checkbox" name="status" value="ได้ยาแก้อาการไม่ทุเลา"> ได้ยาแก้อาการไม่ทุเลา</label>
+                    </div>
+
+                    <button type="submit">OK</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <link rel="icon" href="data:,">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Register Process</title>
+     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="discharge.css" />
+    <script type="module" src="discharge.js" defer></script>
+</head>
+<body>
+    <header class="main-header-bar" id="mainHeader">
+        <div class="logo">Hip Go Goal</div>
+        <div class="hamburger-menu" id="hamburgerMenu">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </header>
+
+    <nav class="overlay-menu" id="overlayMenu">
+        <div class="nav-container">
+            <div class="close-btn" id="closeMenu">&times;</div>
+            <div class="sidebar-content-overlay">
+                <div class="logo-overlay">Hip Go Goal</div>
+                <ul class="nav-list">
+                    <li><a href="progress.html">HOME</a></li>
+                    <li><a href="index.html">NEW PATIENT</a></li>
+                    <li><a href="process.html">PHYSICAL</a></li>
+                    <li><a href="discharge.html">REGISTER PROCESS</a></li>
+                    <li><a href="delay.html">DELAY PROCESS</a></li>
+                    <li><a href="distribution.html" class="active">DISPENSING OF MEDICATON</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="register-process-container">
+            <div class="card1">
+                <h2>Register Process</h2>
+                <form id="registerProcessForm">
+                    <label for="buildingFilter">ตึก:</label>
+                    <select id="buildingFilter" name="buildingFilter">
+                        <option value="">-- เลือกตึก --</option>
+                    </select>
+
+                    <label for="patientFilter">ชื่อผู้ป่วย:</label>
+                    <select id="patientFilter" name="patientFilter">
+                        <option value="">-- เลือกผู้ป่วย --</option>
+                    </select>
+
+                    <div id="patientNameDisplay" style="text-align: center; font-size: 1.1em; font-weight: bold; color: #333; margin-top: 10px; margin-bottom: 20px;"></div>
+
+                    <hr style="margin: 25px 0;">
+
+                    <h3>สถานะการทำกายภาพ</h3>
+
+                    <div class="status-group">
+                        <label for="sittingStatus" class="status-label">
+                            <input type="checkbox" id="sittingStatus" name="status" value="sitting">
+                            <span id="sittingText">Sitting</span>
+                            <span class="time-status" id="sittingTimeStatus"></span>
+                        </label>
+                        <textarea id="sittingDelayReason" class="delay-reason" placeholder="เหตุผลล่าช้า (Sitting)" style="display: none;"></textarea>
+                    </div>
+
+                    <div class="status-group">
+                        <label for="standingStatus" class="status-label">
+                            <input type="checkbox" id="standingStatus" name="status" value="standing">
+                            <span id="standingText">Standing</span>
+                            <span class="time-status" id="standingTimeStatus"></span>
+                        </label>
+                        <textarea id="standingDelayReason" class="delay-reason" placeholder="เหตุผลล่าช้า (Standing)" style="display: none;"></textarea>
+                    </div>
+
+                    <div class="status-group">
+                        <label for="goalStatus" class="status-label">
+                            <input type="checkbox" id="goalStatus" name="status" value="goal_ambulation">
+                            <span id="goalText">Goal Ambulation (wheel chair/walking)</span>
+                            <span class="time-status" id="goalTimeStatus"></span>
+                        </label>
+                        <textarea id="goalDelayReason" class="delay-reason" placeholder="เหตุผลล่าช้า (Goal Ambulation)" style="display: none;"></textarea>
+                    </div>
+
+                    <button type="submit">บันทึกสถานะ</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
