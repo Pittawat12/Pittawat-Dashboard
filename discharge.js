@@ -65,17 +65,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sittingStatusCheckbox = document.getElementById('sittingStatus');
     const sittingTextSpan = document.getElementById('sittingText');
     const sittingTimeStatusSpan = document.getElementById('sittingTimeStatus');
-    const sittingDelayReasonTextarea = document.getElementById('sittingDelayReason');
+    const sittingDelayReasonSelect = document.getElementById('sittingDelayReason'); // Changed to select
+    const sittingOtherReasonTextarea = document.getElementById('sittingOtherReason'); // New textarea for 'Other'
 
     const standingStatusCheckbox = document.getElementById('standingStatus');
     const standingTextSpan = document.getElementById('standingText');
     const standingTimeStatusSpan = document.getElementById('standingTimeStatus');
-    const standingDelayReasonTextarea = document.getElementById('standingDelayReason');
+    const standingDelayReasonSelect = document.getElementById('standingDelayReason'); // Changed to select
+    const standingOtherReasonTextarea = document.getElementById('standingOtherReason'); // New textarea for 'Other'
 
     const goalStatusCheckbox = document.getElementById('goalStatus');
     const goalTextSpan = document.getElementById('goalText');
     const goalTimeStatusSpan = document.getElementById('goalTimeStatus');
-    const goalDelayReasonTextarea = document.getElementById('goalDelayReason');
+    const goalDelayReasonSelect = document.getElementById('goalDelayReason'); // Changed to select
+    const goalOtherReasonTextarea = document.getElementById('goalOtherReason'); // New textarea for 'Other'
+
 
     let currentPatientOperationDate = null; // Store operation date of selected patient
     let currentPatientName = ''; // Store the name of the selected patient
@@ -112,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     sortedBuildings.forEach(buildingId => {
                         const option = document.createElement('option');
                         option.value = buildingId;
-                        option.textContent = `ตึก ${buildingId}`;
+                        option.textContent = ` ${buildingId}`;
                         buildingFilterSelect.appendChild(option);
                     });
                 }
@@ -195,20 +199,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         sittingStatusCheckbox.checked = false;
         sittingTextSpan.style.color = '';
         sittingTimeStatusSpan.textContent = '';
-        sittingDelayReasonTextarea.style.display = 'none';
-        sittingDelayReasonTextarea.value = '';
+        sittingDelayReasonSelect.style.display = 'none';
+        sittingDelayReasonSelect.value = ''; // Reset select
+        sittingOtherReasonTextarea.style.display = 'none'; // Hide other reason
+        sittingOtherReasonTextarea.value = ''; // Clear other reason
 
         standingStatusCheckbox.checked = false;
         standingTextSpan.style.color = '';
         standingTimeStatusSpan.textContent = '';
-        standingDelayReasonTextarea.style.display = 'none';
-        standingDelayReasonTextarea.value = '';
+        standingDelayReasonSelect.style.display = 'none';
+        standingDelayReasonSelect.value = ''; // Reset select
+        standingOtherReasonTextarea.style.display = 'none'; // Hide other reason
+        standingOtherReasonTextarea.value = ''; // Clear other reason
 
         goalStatusCheckbox.checked = false;
         goalTextSpan.style.color = '';
         goalTimeStatusSpan.textContent = '';
-        goalDelayReasonTextarea.style.display = 'none';
-        goalDelayReasonTextarea.value = '';
+        goalDelayReasonSelect.style.display = 'none';
+        goalDelayReasonSelect.value = ''; // Reset select
+        goalOtherReasonTextarea.style.display = 'none'; // Hide other reason
+        goalOtherReasonTextarea.value = ''; // Clear other reason
     };
 
     // Function to calculate time difference and update checkbox text colors and time status
@@ -218,10 +228,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             sittingTextSpan.style.color = ''; sittingTimeStatusSpan.textContent = '';
             standingTextSpan.style.color = ''; standingTimeStatusSpan.textContent = '';
             goalTextSpan.style.color = ''; goalTimeStatusSpan.textContent = '';
-            // Ensure delay reason textareas are hidden if no operation date
-            sittingDelayReasonTextarea.style.display = 'none'; sittingDelayReasonTextarea.value = '';
-            standingDelayReasonTextarea.style.display = 'none'; standingDelayReasonTextarea.value = '';
-            goalDelayReasonTextarea.style.display = 'none'; goalDelayReasonTextarea.value = '';
+            // Ensure delay reason fields are hidden
+            sittingDelayReasonSelect.style.display = 'none'; sittingDelayReasonSelect.value = '';
+            sittingOtherReasonTextarea.style.display = 'none'; sittingOtherReasonTextarea.value = '';
+            standingDelayReasonSelect.style.display = 'none'; standingDelayReasonSelect.value = '';
+            standingOtherReasonTextarea.style.display = 'none'; standingOtherReasonTextarea.value = '';
+            goalDelayReasonSelect.style.display = 'none'; goalDelayReasonSelect.value = '';
+            goalOtherReasonTextarea.style.display = 'none'; goalOtherReasonTextarea.value = '';
             return;
         }
 
@@ -233,33 +246,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         // --- Sitting: 24 hours ---
         if (diffHours <= 24) {
             sittingTextSpan.style.color = 'blue';
-            sittingTimeStatusSpan.textContent = '(อยู่ในเกณฑ์)';
+            sittingTimeStatusSpan.textContent = '(ทำได้ภายใน 24 ชม.)';
         } else {
             sittingTextSpan.style.color = 'red';
-            sittingTimeStatusSpan.textContent = `(เกิน ${Math.floor(diffHours)} ชม.)`;
+            sittingTimeStatusSpan.textContent = `(ทำได้ภายใน 24 ชม. เกิน ${Math.floor(diffHours - 24)} ชม.)`; // Adjusted text
         }
-        // Update visibility of delay reason based on overdue status and checkbox state
-        sittingDelayReasonTextarea.style.display = (diffHours > 24 && sittingStatusCheckbox.checked) ? 'block' : 'none';
-        if (sittingDelayReasonTextarea.style.display === 'none') sittingDelayReasonTextarea.value = '';
+        sittingDelayReasonSelect.style.display = (diffHours > 24 && sittingStatusCheckbox.checked) ? 'block' : 'none';
+        if (sittingDelayReasonSelect.style.display === 'none') sittingDelayReasonSelect.value = '';
+        sittingOtherReasonTextarea.style.display = (sittingDelayReasonSelect.value === 'อื่นๆ' && sittingDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
+        if (sittingOtherReasonTextarea.style.display === 'none') sittingOtherReasonTextarea.value = '';
 
 
-        // --- Standing & Goal Ambulation: 48 hours ---
-        if (diffHours <= 48) {
+        // --- Standing: 24 hours (changed from 48) ---
+        if (diffHours <= 24) {
             standingTextSpan.style.color = 'blue';
-            standingTimeStatusSpan.textContent = '(อยู่ในเกณฑ์)';
-            goalTextSpan.style.color = 'blue';
-            goalTimeStatusSpan.textContent = '(อยู่ในเกณฑ์)';
+            standingTimeStatusSpan.textContent = '(ทำได้ภายใน 24 ชม.)'; // Changed text
         } else {
             standingTextSpan.style.color = 'red';
-            standingTimeStatusSpan.textContent = `(เกิน ${Math.floor(diffHours)} ชม.)`;
-            goalTextSpan.style.color = 'red';
-            goalTimeStatusSpan.textContent = `(เกิน ${Math.floor(diffHours)} ชม.)`;
+            standingTimeStatusSpan.textContent = `(ทำได้ภายใน 24 ชม. เกิน ${Math.floor(diffHours - 24)} ชม.)`; // Changed text
         }
-        standingDelayReasonTextarea.style.display = (diffHours > 48 && standingStatusCheckbox.checked) ? 'block' : 'none';
-        if (standingDelayReasonTextarea.style.display === 'none') standingDelayReasonTextarea.value = '';
+        standingDelayReasonSelect.style.display = (diffHours > 24 && standingStatusCheckbox.checked) ? 'block' : 'none'; // Changed from 48 to 24
+        if (standingDelayReasonSelect.style.display === 'none') standingDelayReasonSelect.value = '';
+        standingOtherReasonTextarea.style.display = (standingDelayReasonSelect.value === 'อื่นๆ' && standingDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
+        if (standingOtherReasonTextarea.style.display === 'none') standingOtherReasonTextarea.value = '';
 
-        goalDelayReasonTextarea.style.display = (diffHours > 48 && goalStatusCheckbox.checked) ? 'block' : 'none';
-        if (goalDelayReasonTextarea.style.display === 'none') goalDelayReasonTextarea.value = '';
+        // --- Goal Ambulation: 48 hours (remains the same) ---
+        if (diffHours <= 48) {
+            goalTextSpan.style.color = 'blue';
+            goalTimeStatusSpan.textContent = '(ทำได้ภายใน 48 ชม.)';
+        } else {
+            goalTextSpan.style.color = 'red';
+            goalTimeStatusSpan.textContent = `(ทำได้ภายใน 48 ชม. เกิน ${Math.floor(diffHours - 48)} ชม.)`; // Adjusted text
+        }
+        goalDelayReasonSelect.style.display = (diffHours > 48 && goalStatusCheckbox.checked) ? 'block' : 'none';
+        if (goalDelayReasonSelect.style.display === 'none') goalDelayReasonSelect.value = '';
+        goalOtherReasonTextarea.style.display = (goalDelayReasonSelect.value === 'อื่นๆ' && goalDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
+        if (goalOtherReasonTextarea.style.display === 'none') goalOtherReasonTextarea.value = '';
     };
 
     // Helper function to check if a status is "overdue" based on operation date
@@ -291,10 +313,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // --- Event Listeners for Checkbox Changes ---
-    // These listeners trigger `updateStatusDisplay` to recalculate colors and toggle delay reason textareas
     sittingStatusCheckbox.addEventListener('change', updateStatusDisplay);
     standingStatusCheckbox.addEventListener('change', updateStatusDisplay);
     goalStatusCheckbox.addEventListener('change', updateStatusDisplay);
+
+    // --- Event Listeners for Delay Reason Select Changes ---
+    const setupDelayReasonListener = (selectElement, otherTextareaElement) => { // Removed thresholdHours as it's not directly used here
+        selectElement.addEventListener('change', () => {
+            if (selectElement.value === 'อื่นๆ') {
+                otherTextareaElement.style.display = 'block';
+            } else {
+                otherTextareaElement.style.display = 'none';
+                otherTextareaElement.value = '';
+            }
+            updateStatusDisplay(); // Re-evaluate display
+        });
+    };
+
+    setupDelayReasonListener(sittingDelayReasonSelect, sittingOtherReasonTextarea);
+    setupDelayReasonListener(standingDelayReasonSelect, standingOtherReasonTextarea);
+    setupDelayReasonListener(goalDelayReasonSelect, goalOtherReasonTextarea);
 
 
     // Form submission for Register Process
@@ -319,38 +357,59 @@ document.addEventListener('DOMContentLoaded', async () => {
             patientId: selectedPatientId,
             patientName: currentPatientName,
             buildingId: selectedBuildingId,
-            timestamp: new Date()
+            timestamp: new Date(),
+            status: "active", // Added status field with "active" value
+            isActive: true // เพิ่มช่องสุดท้ายเป็น active ตามที่ร้องขอ
         };
 
         const statuses = {};
         let hasError = false;
 
+        // Function to get delay reason
+        const getDelayReason = (selectElement, otherTextareaElement, isOverdueStatus, statusNameForAlert) => {
+            if (isOverdueStatus) {
+                const selectedReason = selectElement.value;
+                if (selectedReason === '') {
+                    alert(`กรุณาเลือกเหตุผลล่าช้าสำหรับสถานะ ${statusNameForAlert} (หากเกินเวลา)`);
+                    hasError = true;
+                    return null;
+                }
+                if (selectedReason === 'อื่นๆ') {
+                    const otherReason = otherTextareaElement.value.trim();
+                    if (otherReason === '') {
+                        alert(`กรุณาระบุเหตุผลอื่นๆ สำหรับสถานะ ${statusNameForAlert} (หากเกินเวลา)`);
+                        hasError = true;
+                        return null;
+                    }
+                    return `อื่นๆ: ${otherReason}`;
+                }
+                return selectedReason;
+            }
+            return null; // Not overdue or not applicable
+        };
+
         // Sitting Status
         if (sittingStatusCheckbox.checked) {
-            const delayReason = sittingDelayReasonTextarea.value.trim();
-            if (isOverdue(24) && delayReason === '') {
-                alert("กรุณาระบุเหตุผลล่าช้าสำหรับ Sitting (หากเกินเวลา)");
-                hasError = true;
-            }
+            const isSittingOverdue = isOverdue(24);
+            const delayReason = getDelayReason(sittingDelayReasonSelect, sittingOtherReasonTextarea, isSittingOverdue, 'Sitting');
+            if (hasError) return; // Stop if there was an alert
             statuses.sitting = {
                 completed: true,
-                delayReason: delayReason === '' ? null : delayReason // Save null if empty
+                delayReason: delayReason
             };
         } else {
-            statuses.sitting = { completed: false }; // Record as not completed if unchecked
+            statuses.sitting = { completed: false };
         }
 
 
-        // Standing Status
+        // Standing Status (threshold changed to 24 hours)
         if (standingStatusCheckbox.checked) {
-            const delayReason = standingDelayReasonTextarea.value.trim();
-            if (isOverdue(48) && delayReason === '') {
-                alert("กรุณาระบุเหตุผลล่าช้าสำหรับ Standing (หากเกินเวลา)");
-                hasError = true;
-            }
+            const isStandingOverdue = isOverdue(24); // Changed from 48 to 24
+            const delayReason = getDelayReason(standingDelayReasonSelect, standingOtherReasonTextarea, isStandingOverdue, 'Standing');
+            if (hasError) return;
             statuses.standing = {
                 completed: true,
-                delayReason: delayReason === '' ? null : delayReason
+                delayReason: delayReason
             };
         } else {
             statuses.standing = { completed: false };
@@ -358,14 +417,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Goal Ambulation Status
         if (goalStatusCheckbox.checked) {
-            const delayReason = goalDelayReasonTextarea.value.trim();
-            if (isOverdue(48) && delayReason === '') {
-                alert("กรุณาระบุเหตุผลล่าช้าสำหรับ Goal Ambulation (หากเกินเวลา)");
-                hasError = true;
-            }
+            const isGoalOverdue = isOverdue(48);
+            const delayReason = getDelayReason(goalDelayReasonSelect, goalOtherReasonTextarea, isGoalOverdue, 'Goal Ambulation');
+            if (hasError) return;
             statuses.goal_ambulation = {
                 completed: true,
-                delayReason: delayReason === '' ? null : delayReason
+                delayReason: delayReason
             };
         } else {
             statuses.goal_ambulation = { completed: false };

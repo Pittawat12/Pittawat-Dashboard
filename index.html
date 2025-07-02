@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-  
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Register Patient</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hip Go Goal</title>
+<link rel="stylesheet" href="progress.css">
+    <link rel="stylesheet" href="style.css">
     <script type="module" src="script.js" defer></script>
 </head>
 <body>
-    <header class="main-header-bar">
-        <div class="logo">Hip Go Goal</div>
+    <header class="main-header-bar" id="mainHeader">
+        <div class="logo">HIP GO GOAL</div>
         <div class="hamburger-menu" id="hamburgerMenu">
             <div class="bar"></div>
             <div class="bar"></div>
@@ -18,37 +18,50 @@
         </div>
     </header>
 
-    <nav class="overlay-menu" id="overlayMenu">
+      <nav class="overlay-menu" id="overlayMenu">
         <div class="nav-container">
             <div class="close-btn" id="closeMenu">&times;</div>
             <div class="sidebar-content-overlay">
-                <div class="logo-overlay">Hip Go Goal</div> <ul class="nav-list">
-                   <li><a href="progress.html">HOME</a></li>
-                    <li><a href="index.html">NEW PATIENT</a></li>
+                <div class="logo-overlay">Hip Go Goal</div>
+                <ul class="nav-list">
+                    <li><a href="index.html" class="active">LOGIN</a></li>
+                    <li><a href="dashboard.html">SUMMARY</a></li>
+                    <li><a href="progress.html">REGISTER PROCESS</a></li>
                     <li><a href="process.html">PHYSICAL</a></li>
                     <li><a href="discharge.html">REGISTER PROCESS</a></li>
-                    <li><a href="delay.html">DELAY PROCESS</a></li>
-                    <li><a href="distribution.html">DISPENSING OF MEDICATON</a></li>
+                    <li><a href="delay.html">Progress Goal</a></li>
+                    <li><a href="distribution.html" >DISPENSING OF MEDICATON</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    <main class="main-content">
-        <div class="card">
-            <h2>Register ข้อมูลผู้ป่วย</h2>
-            <form id="registerForm">
-                <input type="text" id="name" name="name" placeholder="Name" required />
-                <input type="text" id="building" name="building" placeholder="ตึก" required />
-                <input type="text" id="bed" name="bed" placeholder="เตียง" />
-                <label for="admissionDate" class="input-label">Admission Date</label>
-                <input type="date" id="admissionDate" name="admissionDate" required />
-                <input type="text" id="Diagnosis" name="Diagnosis" placeholder="Diagnosis" required />
-                <label for="operationDate" class="input-label">Operation Date & time</label>
-                <input type="datetime-local" id="operationDate" name="Operation Date & time" required/>
-                <input type="text" id="goal" name="goal" placeholder="Goal Ambulation" />
-                <button type="submit">REGISTER</button>
-            </form>
+
+    <div class="login-wrapper">
+        <div class="login-container">
+            <div class="login-card">
+                <h2>LOGIN</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <input type="text" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="sign-in-btn">SIGN IN</button>
+                    <div class="additional-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="rememberMe"> Remember me
+                        </label>
+                        <a href="#" class="forgot-password">Forgot your password?</a>
+                    </div>
+                    <p id="loginMessage" class="message"></p>
+                </form>
+            </div>
         </div>
-    </main>
+        <div class="right-top-decorations">
+            <div class="banner-top-right"></div>
+            <div class="banner-bottom-right"></div>
+        </div>
+    </div>
 </body>
 </html>

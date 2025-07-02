@@ -1,440 +1,509 @@
-/* Reset และ Layout พื้นฐาน */
+/* style.css */
+
+:root {
+    --primary-color: #ed6c41; /* Orange for accents */
+    --secondary-color: #ffffff; /* White for backgrounds/cards */
+    --text-color: #333; /* Dark gray for general text */
+    --background-color: #fcefd6; /* Light peach/cream background as per image_73033b.png */
+    --card-bg: #ffe4e6; /* Light pink for login card as per image_73033b.png */
+    --border-color: #ffb6c1; /* Pink border for inputs/buttons */
+    --button-bg: #ff6f61; /* Salmon/coral for Sign In button */
+    --button-hover-bg: #e65c50; /* Darker salmon on hover */
+    --link-color: #ed6c41; /* Orange for links */
+    --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 6px 16px rgba(0, 0, 0, 0.12);
+    --font-family: 'Mitr', sans-serif; /* Adjusted font family for consistency */
+}
+
+/* Base & Reset Styles */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', 'Kanit', 'Prompt', sans-serif;
+    font-family: var(--font-family);
     -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
     height: 100%;
     width: 100%;
-    background-color: #f9f9f9;
+    /* overflow: hidden; */ /* อาจทำให้เกิดปัญหาบนมือถือถ้าเนื้อหาเกิน */
+}
+
+body {
+    background-color: var(--background-color); /* Light peach/cream background */
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
+    color: var(--text-color);
+    position: relative; /* For absolute positioning of some elements */
+    background-image: url('https://via.placeholder.com/400x400/F0E6EF/808080?text=MAN_ILLUSTRATION'); /* Placeholder for man illustration */
+    background-repeat: no-repeat;
+    background-position: center 20%; /* Adjust position of the man illustration */
+    background-size: auto 60%; /* Adjust size of the man illustration */
 }
 
-body.no-scroll {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-}
-
-/* Header Bar (ส่วนบนสุดของหน้าจอที่มีโลโก้และ Hamburger) */
+/* Header Bar (Top Navbar) */
 .main-header-bar {
     width: 100%;
-    background-color: #fff;
+    background-color: var(--secondary-color); /* White background for header */
     padding: 10px 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-light);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: sticky;
+    position: fixed; /* Fixed header */
     top: 0;
+    left: 0;
     z-index: 1000;
 }
 
 .logo {
-    font-size: 18px;
+    font-size: 1.5rem; /* Larger logo for prominent display */
     font-weight: bold;
-    color: #ff7f50;
-    text-align: left;
-    line-height: 1.2;
-    flex-shrink: 0;
+    color: #333; /* Dark text for logo as per image_73033b.png */
+    letter-spacing: 1px;
 }
 
-/* Hamburger Icon (3 ขีด) */
 .hamburger-menu {
-    width: 30px;
-    height: 25px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    width: 30px;
+    height: 25px;
     cursor: pointer;
-    padding: 10px;
-    min-width: 44px;
-    min-height: 44px;
+    padding: 5px;
+    min-width: 40px;
+    min-height: 40px;
     box-sizing: content-box;
-    z-index: 1001;
-    user-select: none;
-    touch-action: manipulation;
 }
 
 .hamburger-menu .bar {
     width: 100%;
     height: 3px;
-    background-color: #333;
+    background-color: var(--primary-color); /* Orange bars */
     border-radius: 2px;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease-in-out;
 }
 
-/* ==========================================================================
-   Overlay Menu (Pop-up Menu) - คัดลอกมาจาก process.css เพื่อให้เหมือนกัน
-   ========================================================================== */
+/* Overlay Menu (Hamburger Menu) */
 .overlay-menu {
     position: fixed;
-    z-index: 2000;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.7); /* พื้นหลังดำโปร่งแสง */
-    opacity: 0; /* ซ่อนเริ่มต้น */
-    visibility: hidden; /* ซ่อนเริ่มต้น */
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-    display: flex; /* ใช้ flexbox เพื่อจัดกึ่งกลางเนื้อหา */
-    justify-content: center; /* จัดกึ่งกลางแนวนอน */
-    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
-    -webkit-overflow-scrolling: touch; /* เพื่อการ scroll ที่ราบรื่นบน iOS */
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1100;
 }
 
 .overlay-menu.open {
-    opacity: 1;
     visibility: visible;
+    opacity: 1;
 }
 
 .overlay-menu .nav-container {
-    background-color: #fff; /* พื้นหลังเมนูสีขาว */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    width: 90%;
-    max-width: 350px; /* จำกัดความกว้างของเมนู */
+    background-color: var(--secondary-color);
+    width: 80%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-medium);
+    position: relative;
     text-align: center;
-    position: relative; /* สำหรับ close button */
-    max-height: 90vh; /* จำกัดความสูงเผื่อเมนูยาวๆ */
-    overflow-y: auto; /* ให้ scroll ได้ถ้าเมนูยาวเกิน */
-    -webkit-overflow-scrolling: touch;
 }
 
-.overlay-menu .close-btn {
+.close-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 20px;
     font-size: 30px;
-    color: #333;
+    color: var(--text-color);
     cursor: pointer;
-    z-index: 2001;
-    user-select: none;
-    touch-action: manipulation;
-    padding: 5px; /* เพิ่ม padding ให้กดง่ายขึ้น */
-    min-width: 44px; /* กำหนดขั้นต่ำตาม guideline ของ mobile UI */
-    min-height: 44px;
-    box-sizing: content-box;
-    display: flex; /* จัดกึ่งกลาง 'x' */
-    justify-content: center;
-    align-items: center;
+    font-weight: 200;
+    transition: color 0.2s ease;
 }
 
-.overlay-menu .sidebar-content-overlay {
+.close-btn:hover {
+    color: var(--primary-color);
+}
+
+.sidebar-content-overlay {
+    text-align: center;
     width: 100%;
-    padding-top: 20px; /* เผื่อที่ว่างสำหรับ close button */
-    /* ส่วนนี้ใน process.css มี padding: 0; margin: 0; ด้วย 
-       ถ้าอยากให้เหมือนเป๊ะๆ ควรใส่ที่นี่ด้วย 
-       แต่จากโค้ดที่คุณให้มาล่าสุดใน process.css มันไม่ได้มี
-       ดังนั้นผมจะยึดตาม process.css ที่คุณให้มา */
+    padding: 0;
 }
 
-.overlay-menu .logo-overlay {
-    font-size: 20px;
+.logo-overlay {
+    font-size: 1.8rem; /* Larger logo in overlay */
     font-weight: bold;
+    color: #333;
     margin-bottom: 30px;
-    color: #ff7f50;
-    line-height: 1.2;
 }
 
-.overlay-menu .nav-list {
+.nav-list {
     list-style: none;
     padding: 0;
+    margin: 0;
     width: 100%;
 }
 
-.overlay-menu .nav-list li {
-    margin-bottom: 15px; /* ระยะห่างระหว่างรายการเมนู */
-    width: 100%;
+.nav-list li {
+    margin-bottom: 1.25rem;
 }
 
-.overlay-menu .nav-list a {
-    display: block;
-    padding: 12px 20px;
+.nav-list a {
+    color: var(--text-color);
     text-decoration: none;
-    font-size: 16px;
-    color: #333;
-    background-color: #f0f0f0; /* สีพื้นหลังปุ่มเมนู */
-    border-radius: 8px;
-    transition: background-color 0.3s ease;
-    font-weight: 600;
-    text-align: center; /* จัดข้อความกึ่งกลาง */
-    user-select: none;
-    touch-action: manipulation;
+    font-size: 1.25rem;
+    padding: 10px 0;
+    display: block;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    border-radius: 5px; /* Slight round for nav items */
 }
 
+.overlay-menu .nav-list a:hover {
+    background-color: var(--border-color); /* Pink hover background */
+    color: var(--secondary-color); /* White text on hover */
+}
 .overlay-menu .nav-list a:hover,
 .overlay-menu .nav-list a.active {
     background-color: #ff6f61; /* สีพื้นหลังเมื่อ hover/active */
     color: white;
 }
 
-/* Main Content Area (สำหรับฟอร์ม) */
-.main-content {
-    flex: 1; /* ใช้พื้นที่ที่เหลือทั้งหมด */
+
+/* Login Wrapper - Main Layout */
+.login-wrapper {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    padding-top: 10px; /* Reduced padding-top for desktop */
+    min-height: calc(100vh - 60px); /* Ensure it takes full height after header */
+    position: relative; /* For positioning other elements within */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    /* overflow: hidden; */ /* อาจทำให้เกิดปัญหาบนมือถือถ้าเนื้อหาเกิน */
+}
+
+/* Login Card */
+.login-container {
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* จัดฟอร์มให้อยู่ด้านบนของพื้นที่ main-content */
-    padding: 20px; /* Padding รอบฟอร์ม */
-    background-color: #FFF8DC;
-    overflow-y: auto; /* เปิดใช้งาน scroll ใน main content ถ้าเนื้อหาเยอะ */
-    z-index: 1; /* ตรวจสอบให้แน่ใจว่าอยู่ต่ำกว่า overlay */
-    position: relative; /* สำคัญเพื่อให้ z-index ทำงาน */
-    -webkit-overflow-scrolling: touch; /* เพื่อการ scroll ที่ลื่นไหลบน iOS */
+    align-items: center;
+    flex-grow: 1; /* Allow it to take available space */
+    padding: 20px; /* Add some padding */
+    z-index: 20; /* Ensure login card is above placeholder */
 }
 
-.card {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+.login-card {
+    background-color: var(--card-bg); /* Light pink card background */
+    padding: 60px 40px; /* Increased padding significantly, but reduced horizontal */
+    border-radius: 15px; /* More rounded corners */
+    box-shadow: var(--shadow-medium);
     width: 100%;
-    max-width: 500px; /* จำกัดความกว้างฟอร์มบน Desktop */
+    max-width: 650px; /* Significantly increased max-width for desktop */
+    text-align: center;
+    border: 2px solid var(--border-color); /* Pink border for the card */
+    position: relative; /* For the man illustration position */
 }
 
-.card h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #333;
-    text-align: center;
+.login-card h2 {
+    color: var(--button-bg); /* Salmon color for LOGIN text */
+    margin-bottom: 35px; /* Adjusted margin */
+    font-size: 2.8rem; /* Larger login heading */
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.form-group {
+    margin-bottom: 30px; /* Increased margin */
 }
 
 input[type="text"],
-input[type="date"],
-input[type="datetime-local"] {
+input[type="password"] {
     width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #fefefe;
+    padding: 18px 25px; /* Increased padding */
+    border: 1px solid var(--border-color); /* Pink border for inputs */
+    border-radius: 10px; /* Slightly more rounded inputs */
+    font-size: 1.2rem; /* Larger font */
+    color: var(--text-color);
+    background-color: var(--secondary-color); /* White input background */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-input:focus {
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+    color: #b0b0b0; /* Lighter placeholder text */
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
     outline: none;
-    border-color: #007BFF;
-    background-color: #f0f8ff;
+    border-color: var(--primary-color); /* Orange focus border */
+    box-shadow: 0 0 0 4px rgba(237, 108, 65, 0.2); /* Orange glow on focus */
 }
 
-.input-label {
-    display: block;
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 5px;
+.sign-in-btn {
+    width: 100%;
+    padding: 18px; /* Increased padding */
+    border: none;
+    border-radius: 10px;
+    background-color: var(--button-bg); /* Salmon button */
+    color: var(--secondary-color); /* White text */
+    font-size: 1.3rem; /* Larger font */
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow-light);
+}
+
+.sign-in-btn:hover {
+    background-color: var(--button-hover-bg); /* Darker salmon on hover */
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.additional-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px; /* Increased margin */
+    font-size: 1rem; /* Slightly larger font */
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.remember-me input[type="checkbox"] {
+    margin-right: 10px; /* Adjusted margin */
+    transform: scale(1.1); /* Slightly larger checkbox */
+    accent-color: var(--button-bg); /* Salmon checkbox color */
+}
+
+.forgot-password {
+    color: var(--link-color); /* Orange link color */
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.forgot-password:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.message {
+    color: #dc3545; /* Red for error messages */
+    margin-top: 25px; /* Adjusted margin */
+    font-size: 1.1rem; /* Larger font */
     font-weight: 500;
 }
 
-button[type="submit"] {
-    background-color: #007BFF;
-    color: white;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
-    width: 100%;
-    padding: 14px;
-    font-size: 18px;
-    border-radius: 8px;
+.message.success {
+    color: #28a745; /* Green for success messages */
 }
 
-button[type="submit"]:hover {
-    background-color: #0056b3;
+/* Right Top Decorations (Banners) */
+.right-top-decorations {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 180px; /* Adjusted width */
+    height: 120px; /* Adjusted height */
+    overflow: hidden; /* Hide overflow of banners */
+    z-index: 1; /* Keep it behind the header but above the main content */
 }
 
-/* ===== Responsive สำหรับอุปกรณ์มือถือทั่วไป (สูงสุด 768px) ===== */
-@media (max-width: 768px) {
+.banner-top-right {
+    position: absolute;
+    top: -30px; /* Overlap more */
+    right: -30px; /* Overlap more */
+    width: 120px;
+    height: 120px;
+    background-color: var(--border-color); /* Pink color */
+    transform: rotate(45deg);
+    border-radius: 15px; /* Larger radius */
+    box-shadow: var(--shadow-light);
+}
+
+.banner-bottom-right {
+    position: absolute;
+    top: 70px; /* Position below the first banner */
+    right: -50px; /* Further right */
+    width: 100px;
+    height: 100px;
+    background-color: var(--button-bg); /* Salmon color */
+    transform: rotate(45deg);
+    border-radius: 15px; /* Larger radius */
+    box-shadow: var(--shadow-light);
+}
+
+
+/* Responsive Adjustments */
+
+/* Tablets (landscape) and smaller desktops */
+@media (min-width: 768px) and (max-width: 1024px) {
+    html {
+        font-size: 16px; /* Base font size slightly larger for tablets */
+    }
+    .login-wrapper {
+        padding-top: 10px; /* Reduced padding-top for tablets */
+    }
+    .login-card {
+        padding: 50px 30px; /* Adjusted padding for tablets, reduced horizontal */
+        max-width: 550px; /* Adjusted max-width for tablets */
+    }
+    .login-card h2 {
+        font-size: 2.5rem; /* Adjusted for tablets */
+        margin-bottom: 30px;
+    }
+    input[type="text"],
+    input[type="password"] {
+        padding: 15px 20px; /* Adjusted for tablets */
+        font-size: 1.1rem;
+    }
+    .sign-in-btn {
+        padding: 15px; /* Adjusted for tablets */
+        font-size: 1.2rem;
+    }
+    .additional-options {
+        font-size: 0.95rem; /* Adjusted for tablets */
+        margin-top: 20px;
+    }
+    .message {
+        font-size: 1rem; /* Adjusted for tablets */
+    }
+    .right-top-decorations {
+        width: 150px;
+        height: 100px;
+    }
+    .banner-top-right {
+        width: 100px;
+        height: 100px;
+        top: -20px;
+        right: -20px;
+    }
+    .banner-bottom-right {
+        width: 80px;
+        height: 80px;
+        top: 50px;
+        right: -40px;
+    }
+}
+
+/* Mobile Devices (including iPhone 16 range) */
+@media (max-width: 767px) {
+    html {
+        font-size: 15px; /* Base font size slightly larger for mobile */
+    }
     .main-header-bar {
         padding: 8px 15px;
     }
-
     .logo {
-        font-size: 16px;
+        font-size: 1.3rem;
     }
-
     .hamburger-menu {
-        padding: 5px; /* ปรับ padding สำหรับ touch target บนมือถือ */
-        min-width: 40px;
-        min-height: 40px;
+        width: 28px;
+        height: 23px;
+        min-width: 38px;
+        min-height: 38px;
     }
 
-    .main-content {
-        padding: 15px; /* ลด padding รอบ main-content */
-        padding-top: 20px; /* เพิ่ม padding ด้านบนเล็กน้อย */
+    body {
+        background-position: center bottom; /* Adjust man illustration for mobile */
+        background-size: 80% auto;
     }
 
-    .card {
-        padding: 20px;
-        border-radius: 0; /* ทำให้ฟอร์มเป็นสี่เหลี่ยมบนมือถือ */
-        box-shadow: none; /* ไม่มีเงาบนมือถือ */
-        max-width: 100%;
+    .login-wrapper {
+        padding-top: 10px; /* Reduced space from fixed header for mobile */
+        flex-direction: column; /* Stack elements vertically */
+        justify-content: flex-start; /* Align to top */
+        min-height: calc(100vh - 50px); /* Adjust min-height for mobile header */
     }
 
-    .card h2 {
-        font-size: 20px;
-        margin-bottom: 15px;
+    .login-container {
+        padding: 10px; /* Slightly reduced overall padding in container */
+        align-items: center; /* Center login card horizontally on mobile */
+        justify-content: center; /* Center login card vertically on mobile */
     }
 
-    input, button {
+    .login-card {
+        padding: 30px 25px; /* Adjusted padding for mobile: more top/bottom, less left/right to widen content */
+        max-width: 95%; /* Make it fill almost the entire width */
+        margin-top: 20px; /* Add some space from the top */
+    }
+
+    .login-card h2 {
+        font-size: 2.2rem; /* Adjusted for mobile */
+        margin-bottom: 25px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        padding: 14px 18px; /* Increased input padding for larger touch targets */
+        font-size: 1.1rem; /* Larger font size for inputs */
+    }
+
+    .sign-in-btn {
+        padding: 14px; /* Adjusted for mobile */
+        font-size: 1.2rem; /* Larger font for button */
+    }
+
+    .additional-options {
+        flex-direction: column; /* Stack remember me and forgot password */
+        align-items: flex-start;
+        gap: 12px; /* Increased gap */
+        font-size: 1rem; /* Larger font size */
+    }
+
+    .remember-me input[type="checkbox"] {
+        transform: scale(1.2); /* Even larger checkbox */
+    }
+
+    .message {
+        font-size: 1.05rem; /* Larger message font */
+    }
+
+    .right-top-decorations {
+        display: none; /* Hide decorations on small screens for simplicity */
+    }
+}
+
+/* Very small mobile devices (e.g., older iPhones, smaller Androids) */
+@media (max-width: 480px) {
+    html {
         font-size: 14px;
-        padding: 10px;
-        margin-bottom: 12px;
     }
-
-    button[type="submit"] {
+    .login-card {
+        margin-top: 10px;
+        padding: 25px 50px; /* Adjusted padding for very small mobile, slightly less horizontal */
+        max-width: 98%; /* Make it even wider */
+    }
+    .login-card h2 {
+        font-size: 2rem; /* Adjusted heading size */
+    }
+    input[type="text"],
+    input[type="password"] {
+        padding: 12px 70px; /* Slightly adjusted padding for very small screens */
+        font-size: 1rem;
+    }
+    .sign-in-btn {
         padding: 12px;
-        font-size: 16px;
+        font-size: 1.1rem;
     }
-
-    /* Overlay Menu adjustments for smaller screens (เหมือน process.css) */
-    .overlay-menu .nav-container {
-        padding: 15px; /* ลด padding ของคอนเทนเนอร์เมนู */
-        max-width: 300px; /* จำกัดความกว้างเมนู */
+    .additional-options {
+        font-size: 0.95rem;
     }
-    .overlay-menu .close-btn {
-        font-size: 30px; /* ลดขนาดปุ่มปิด */
-        top: 5px;
-        right: 5px;
-    }
-    .overlay-menu .nav-list a {
-        font-size: 16px;
-        padding: 10px 15px;
-    }
-    .overlay-menu .logo-overlay { /* เพิ่มเข้ามา */
-        font-size: 18px; /* ปรับขนาดตามความเหมาะสม */
-        margin-bottom: 20px;
-    }
-    .overlay-menu .nav-list li { /* เพิ่มเข้ามา */
-        margin-bottom: 12px;
-    }
-}
-
-/* Responsive สำหรับ iPad (แนวตั้ง, ประมาณ 769px - 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .main-header-bar {
-        padding: 12px 25px;
-    }
-    .logo {
-        font-size: 20px;
-    }
-    .hamburger-menu {
-        width: 35px;
-        height: 30px;
-        padding: 10px;
-    }
-    .hamburger-menu .bar {
-        height: 4px;
-    }
-    .main-content {
-        padding: 30px;
-    }
-    .card {
-        max-width: 600px; /* ขยายฟอร์มเล็กน้อยบน iPad */
-        padding: 35px;
-    }
-    .card h2 {
-        font-size: 28px;
-    }
-    input, button {
-        font-size: 18px;
-        padding: 15px;
-    }
-    button[type="submit"] {
-        font-size: 20px;
-        padding: 16px;
-    }
-    /* Overlay Menu adjustments for iPad (เหมือน process.css) */
-    .overlay-menu .nav-container {
-        padding: 30px;
-        max-width: 450px;
-    }
-    .overlay-menu .close-btn {
-        font-size: 40px;
-        top: 15px;
-        right: 15px;
-    }
-    .overlay-menu .nav-list a {
-        font-size: 20px;
-        padding: 15px 25px;
-    }
-    .overlay-menu .logo-overlay { /* เพิ่มเข้ามา */
-        font-size: 22px; /* ปรับขนาดตามความเหมาะสม */
-        margin-bottom: 35px;
-    }
-    .overlay-menu .nav-list li { /* เพิ่มเข้ามา */
-        margin-bottom: 18px;
-    }
-}
-
-/* Responsive สำหรับหน้าจอที่เล็กมากๆ (เช่น iPhone 5/SE/Mini - กว้างน้อยกว่า 374px) */
-@media (max-width: 374px) {
-    .main-header-bar {
-        padding: 6px 10px;
-    }
-    .logo {
-        font-size: 14px;
-    }
-    .hamburger-menu {
-        width: 25px;
-        height: 20px;
-        min-width: 35px;
-        min-height: 35px;
-        padding: 5px;
-    }
-    .hamburger-menu .bar {
-        height: 2px;
-    }
-    .main-content {
-        padding: 8px;
-        padding-top: 10px;
-    }
-    .card {
-        padding: 15px;
-    }
-    .card h2 {
-        font-size: 18px;
-    }
-    input, button {
-        font-size: 13px;
-        padding: 8px;
-    }
-    button[type="submit"] {
-        padding: 10px;
-        font-size: 14px;
-    }
-    /* Overlay Menu adjustments for smallest screens (เหมือน process.css) */
-    .overlay-menu .nav-container {
-        padding: 10px;
-        max-width: 95%; /* ปรับให้ยืดหยุ่นในหน้าจอเล็กมากๆ */
-    }
-    .overlay-menu .close-btn {
-        font-size: 28px;
-        top: 2px;
-        right: 2px;
-    }
-    .overlay-menu .nav-list li {
-        margin: 8px 0;
-        width: 100%;
-    }
-    .overlay-menu .nav-list a {
-        font-size: 14px;
-        padding: 8px 10px;
-    }
-    .overlay-menu .logo-overlay { /* เพิ่มเข้ามา */
-        font-size: 16px;
-        margin-bottom: 12px;
+    .message {
+        font-size: 0.95rem;
     }
 }

@@ -1,37 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+  
 <head>
-  <meta charset="UTF-8" />
-  <title>Progress Goal</title>
-  <link rel="stylesheet" href="style.css" />
-  <script type="module" src="progress.js" defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Register Patient</title>
+    <link rel="stylesheet" href="progress.css" />
+    <script type="module" src="progress.js" defer></script>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="logo">Hip Go Goal</div>
-    <ul class="nav-list">
-      <li><a href="progress.html">HOME</a></li>
-      <li><a href="index.html">NEW PATIENT</a></li>
-      <li><a href="process.html">PHYSICAL</a></li>
-      <li><a href="discharge.html">REGISTER PROCESS</a></li>
-      <li><a href="delay.html">DELAY PROCESS</a></li>
-      <li><a href="history.html">PROGRESS GOAL</a></li>
-      <li><a href="distribution.html">DISPENSING OF MEDICATON</a></li>
-    </ul>
-  </div>
-  <div class="card">
-    <h2>Progress Goal</h2>
-    <input type="text" id="filterBuilding" placeholder="โปรดระบุ" />
-    <table id="progressTable">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Activities</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    <header class="main-header-bar">
+        <div class="logo">Hip Go Goal</div>
+        <div class="hamburger-menu" id="hamburgerMenu">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </header>
+
+   <nav class="overlay-menu" id="overlayMenu">
+        <div class="nav-container">
+            <div class="close-btn" id="closeMenu">&times;</div>
+            <div class="sidebar-content-overlay">
+                <div class="logo-overlay">Hip Go Goal</div>
+                <ul class="nav-list">
+                    <li><a href="index.html" >LOGIN</a></li>
+                    <li><a href="dashboard.html">SUMMARY</a></li>
+                    <li><a href="progress.html" class="active" >REGISTER PROCESS</a></li>
+                    <li><a href="process.html">PHYSICAL</a></li>
+                    <li><a href="discharge.html">REGISTER PROCESS</a></li>
+                    <li><a href="delay.html">Progress Goal</a></li>
+                    <li><a href="distribution.html" >DISPENSING OF MEDICATON</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content">
+        <div class="card">
+            <h2>Register ข้อมูลผู้ป่วย</h2>
+            <form id="registerForm">
+                <input type="text" id="name" name="name" placeholder="Name" required />
+                <input type="text" id="building" name="building" placeholder="ตึก" required />
+                <input type="text" id="bed" name="bed" placeholder="เตียง" />
+                <label for="admissionDate" class="input-label">Admission Date</label>
+                <input type="date" id="admissionDate" name="admissionDate" required />
+                <input type="text" id="Diagnosis" name="Diagnosis" placeholder="Diagnosis" required />
+                <input type="text" id="operation" name="operation" placeholder="Operation" />
+                <label for="operationDate" class="input-label">Operation Date & time</label>
+                <input type="datetime-local" id="operationDate" name="Operation Date & time" required/>
+                <input type="text" id="goal" name="goal" placeholder="Goal Ambulation" />
+                <button type="submit">REGISTER</button>
+            </form>
+        </div>
+    </main>
 </body>
 </html>

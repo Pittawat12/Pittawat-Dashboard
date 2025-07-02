@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+    <link rel="icon" href="data:," />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Discharge Patient - Hip Go Goal</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>Dispensing of Medication - Hip Go Goal</title>
+    <link rel="stylesheet" href="progress.css" />
     <link rel="stylesheet" href="distribution.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -19,27 +19,26 @@
         </div>
     </header>
 
-    <nav class="overlay-menu" id="overlayMenu">
+ <nav class="overlay-menu" id="overlayMenu">
         <div class="nav-container">
             <div class="close-btn" id="closeMenu">&times;</div>
             <div class="sidebar-content-overlay">
                 <div class="logo-overlay">Hip Go Goal</div>
                 <ul class="nav-list">
-                    <li><a href="progress.html">HOME</a></li>
-                    <li><a href="index.html">NEW PATIENT</a></li>
+                    <li><a href="index.html" >LOGIN</a></li>
+                    <li><a href="dashboard.html">SUMMARY</a></li>
+                    <li><a href="progress.html">REGISTER PROCESS</a></li>
                     <li><a href="process.html">PHYSICAL</a></li>
-                    <li><a href="discharge.html">REGISTER PROCESS</a></li>
-                    <li><a href="delay.html">DELAY PROCESS</a></li>
-                    <li><a href="distribution.html" class="active">DISPENSING OF MEDICATON</a></li>
+                    <li><a href="discharge.html"  >REGISTER PROCESS</a></li>
+                    <li><a href="delay.html"  >Progress Goal</a></li>
+                    <li><a href="distribution.html" class="active" >DISPENSING OF MEDICATON</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-
     <main class="main-content">
         <div class="card">
-            <h2>การจำหน่ายผู้ป่วยและการจ่ายยา</h2>
-            
+            <h2>การจำหน่าย</h2>
             <div class="filter-group">
                 <label for="buildingFilter">เลือกตึก:</label>
                 <select id="buildingFilter">
@@ -48,39 +47,62 @@
             </div>
 
             <div class="filter-group">
-                <label for="patientFilter">เลือกผู้ป่วย (HN - ชื่อ):</label>
+                <label for="patientFilter">เลือกผู้ป่วย:</label>
                 <select id="patientFilter" disabled>
                     <option value="">-- เลือกผู้ป่วย --</option>
                 </select>
             </div>
 
-            <div class="patient-details" id="patientDetails">
-            </div>
-
-            <div class="discharge-form-section">
-                <h3>จัดการการจำหน่ายผู้ป่วย</h3>
+            <div class="discharge-form-container">
                 <form id="dischargeForm">
-                    <div class="radio-group">
+                    <h3>เตรียมจำหน่าย</h3>
+                    <div class="checkbox-group" id="dischargeOptionGroup">
                         <label>
-                            <input type="radio" name="dischargeOption" value="today" id="dischargeToday">
+                            <input type="checkbox" name="dischargeOption" value="today" id="dischargeToday">
                             ผู้ป่วยกลับบ้านวันนี้
                         </label>
                         <label>
-                            <input type="radio" name="dischargeOption" value="tomorrow" id="dischargeTomorrow">
+                            <input type="checkbox" name="dischargeOption" value="tomorrow" id="dischargeTomorrow">
                             ผู้ป่วยกลับบ้านพรุ่งนี้
-                        </label>
-                        <label>
-                            <input type="radio" name="dischargeOption" value="discharge" id="dischargePermanently">
-                            Discharge
                         </label>
                     </div>
 
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="statusCheckbox" value="รอรถพยาบาล"> รอรถพยาบาล</label>
-                        <label><input type="checkbox" name="statusCheckbox" value="รอผลแล็บ"> รอผลแล็บ</label>
-                        <label><input type="checkbox" name="statusCheckbox" value="รับยาครบแล้ว"> รับยาครบแล้ว</label>
-                        <label><input type="checkbox" name="statusCheckbox" value="นัดวันหลัง"> นัดวันหลัง</label>
-                        <label><input type="checkbox" name="statusCheckbox" value="อื่นๆ"> อื่นๆ</label>
+                    <h3>Discharge Criteria</h3>
+                    <div class="checkbox-group" id="dischargeCriteriaGroup">
+                        <label>
+                            <input type="checkbox" name="dischargeCriteria" value="orthopedist" id="criteriaOrthopedist">
+                            Orthopedist
+                            <input type="datetime-local" class="date-input" id="timeOrthopedist" style="display: none;">
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dischargeCriteria" value="geriatic" id="criteriaGeriatric">
+                            Geriatric
+                            <input type="datetime-local" class="date-input" id="timeGeriatric" style="display: none;">
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dischargeCriteria" value="physical_therapist" id="criteriaPhysicalTherapist">
+                            Physical Therapist
+                            <input type="datetime-local" class="date-input" id="timePhysicalTherapist" style="display: none;">
+                        </label>
+                    </div>
+
+                    <h3>อุปกรณ์</h3>
+                    <div class="checkbox-group" id="equipmentGroup">
+                        <label><input type="checkbox" name="equipment" value="walker">Wheel chair</label>
+                        <label><input type="checkbox" name="equipment" value="cane"> Walker</label>
+                        <label><input type="checkbox" name="equipment" value="crutches"> Cane</label>
+                        <label>
+                            <input type="checkbox" name="equipment" value="other" id="equipmentOther"> อื่นๆ ระบุ
+                        </label>
+                        <textarea id="equipmentOtherReason" placeholder="ระบุอุปกรณ์อื่นๆ" style="display: none;"></textarea>
+                    </div>
+
+                    <h3>Discharge</h3>
+                    <div class="checkbox-group" id="finalDischargeOptionGroup">
+                        <label>
+                            <input type="checkbox" name="finalDischargeOption" value="discharge" id="dischargePermanently">
+                            Discharge
+                        </label>
                     </div>
                     
                     <button type="submit" id="submitDischarge">OK</button>

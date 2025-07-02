@@ -143,7 +143,7 @@ body.no-scroll {
     transition: background-color 0.3s ease, color 0.3s ease;
     background-color: #f0f0f0;
     border: 1px solid var(--border-color);
-    font-weight: bold;
+    
 }
 
 .overlay-menu .nav-list a:hover {
@@ -329,3 +329,8 @@ select:focus {
   transform: rotate(45deg);
 }
 
+.overlay-menu .nav-list a:hover,
+.overlay-menu .nav-list a.active {
+    background-color: #ff6f61; /* สีพื้นหลังเมื่อ hover/active */
+    color: white;
+}

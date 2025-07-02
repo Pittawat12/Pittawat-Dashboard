@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             Array.from(buildings).sort().forEach(b => {
                 const opt = document.createElement('option');
                 opt.value = b;
-                opt.textContent = `ตึก ${b}`;
+                opt.textContent = ` ${b}`;
                 buildingSelect.appendChild(opt);
             });
         } catch (err) {

@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Physical Preparation</title>
+    <link rel="stylesheet" href="progress.css" />
     <link rel="stylesheet" href="process.css" />
     <script type="module" src="process.js" defer></script>
 </head>
@@ -19,37 +20,28 @@
     </header>
 
     <nav class="overlay-menu" id="overlayMenu">
-        <div class="nav-container">  <div class="close-btn" id="closeMenu">&times;</div>
+        <div class="nav-container">
+            <div class="close-btn" id="closeMenu">&times;</div>
             <div class="sidebar-content-overlay">
-                <div class="logo-overlay">Hip Go Goal</div> <ul class="nav-list">
-                   <li><a href="progress.html">HOME</a></li>
-                    <li><a href="index.html">NEW PATIENT</a></li>
-                    <li><a href="process.html">PHYSICAL</a></li>
-                    <li><a href="discharge.html">REGISTER PROCESS</a></li>
-                    <li><a href="delay.html">DELAY PROCESS</a></li>
-                    <li><a href="distribution.html" class="active">DISPENSING OF MEDICATON</a></li>
+                <div class="logo-overlay">Hip Go Goal</div>
+                <ul class="nav-list">
+                    <li><a href="index.html" >LOGIN</a></li>
+                    <li><a href="dashboard.html">SUMMARY</a></li>
+                    <li><a href="progress.html">REGISTER PROCESS</a></li>
+                    <li><a href="process.html"  class="active" >PHYSICAL</a></li>
+                    <li><a href="discharge.html" >REGISTER PROCESS</a></li>
+                    <li><a href="delay.html">Progress Goal</a></li>
+                    <li><a href="distribution.html" >DISPENSING OF MEDICATON</a></li>
                 </ul>
             </div>
         </div>
-     </nav>
-
-    <div class="sidebar-desktop" id="sidebarDesktop">
-        <div class="logo">Hip Go Goal</div>
-        <ul class="nav-list">
-            <li><a href="progress.html">HOME</a></li>
-            <li><a href="index.html">NEW PATIENT</a></li>
-            <li><a href="process.html" class="active">PHYSICAL</a></li>
-            <li><a href="discharge.html">REGISTER PROCESS</a></li>
-            <li><a href="delay.html">DELAY PROCESS</a></li>
-            <li><a href="distribution.html">DISPENSING OF MEDICATON</a></li>
-        </ul>
-    </div>
+    </nav>
 
     <main class="main-content">
         <div class="physical-container">
             <div class="card1">
-                <form id="prepForm">
-                    <h2>เตรียมทำกายภาพ</h2>
+                <form id="alertForm">
+                    <h2>Patient Alerts</h2>
 
                     <label for="building">ตึก:</label>
                     <select id="building" name="building">
@@ -60,16 +52,46 @@
                     <select id="patient" name="patient">
                         <option value="">-- เลือกผู้ป่วย --</option>
                     </select>
+                    
+                    <p id="patientStatusDisplay" style="margin-top: -15px; margin-bottom: 20px; font-weight: bold; color: #007bff;"></p>
 
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="status" value="อีก30นาที"> เตรียมทำกายภาพ อีก 30 นาที</label>
-                        <label><input type="checkbox" name="status" value="พร้อมทำกายภาพ"> ผู้ป่วยพร้อมทำกายภาพ</label>
-                        <label><input type="checkbox" name="status" value="ไม่พร้อม/มีภาวะแทรกซ้อน"> ยังไม่พร้อม/มีภาวะแทรกซ้อน</label>
-                        <label><input type="checkbox" name="status" value="ออกนอกตึก"> ออกนอกตึก</label>
-                        <label><input type="checkbox" name="status" value="ได้ยาแก้อาการไม่ทุเลา"> ได้ยาแก้อาการไม่ทุเลา</label>
+                    <div class="alert-section physical-alert-section">
+                        <h3>Physical Alert</h3>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="physicalStatus" value="เตรียมทำกายภาพ อีก30นาที"> เตรียมทำกายภาพ อีก 30 นาที</label>
+                            <label><input type="checkbox" name="physicalStatus" value="ผู้ป่วยยังไม่พร้อมกายภาพ"> ผู้ป่วยยังไม่พร้อมกายภาพ</label>
+                            <label><input type="checkbox" name="physicalStatus" value="ทำกายภาพเรียบร้อย"> ทำกายภาพเรียบร้อย</label>
+                        </div>
                     </div>
 
-                    <button type="submit">OK</button>
+                    <div class="alert-section nurse-alert-section">
+                        <h3>Nurse Alert</h3>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="nurseStatus" value="พร้อมทำกายภาพ"> ผู้ป่วยพร้อมทำกายภาพ</label>
+                            <label><input type="checkbox" name="nurseStatus" value="ออกนอกตึก"> ผู้ป่วยออกนอกตึก</label>
+                            <label><input type="checkbox" name="nurseStatus" value="มีกิจกรรมการพยาบาล"> ผู้ป่วยมีกิจกรรมการพยาบาล</label>
+                        </div>
+                        
+                        <h4>มีสภาวะแทรกซ้อน</h4>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="nurseStatus" value="pain"> pain</label>
+                            <label><input type="checkbox" name="nurseStatus" value="dyspnea"> dyspnea</label>
+                            <label><input type="checkbox" name="nurseStatus" value="delirium"> delirium</label>
+                            <label><input type="checkbox" name="nurseStatus" value="ขาอ่อนแรง"> ขาอ่อนแรง</label>
+                            <label><input type="checkbox" name="nurseStatus" value="anemia transfusion"> anemia transfusion</label>
+                            <label><input type="checkbox" name="nurseStatus" value="fear of fall"> fear of fall</label>
+                            <label><input type="checkbox" name="nurseStatus" value="อ่อนเพลีย เวียนศีรษะ"> อ่อนเพลีย เวียนศีรษะ</label>
+                            <label><input type="checkbox" name="nurseStatus" value="อื่นๆ ระบุ" id="otherNurseAlertCheckbox"> อื่นๆ ระบุ</label>
+                            <textarea id="otherNurseAlertText" placeholder="ระบุรายละเอียดเพิ่มเติม" style="display: none; width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div class="end-activity-controls">
+                            <label><input type="checkbox" id="endActivityCheckbox"> สิ้นสุดกิจกรรม</label>
+                            <button type="button" id="endActivityButton" style="display: none;">ยืนยันสิ้นสุดกิจ</button>
+                        </div>
+                    </div>
+
+                    <button type="submit">บันทึก Alert</button>
                 </form>
             </div>
         </div>
