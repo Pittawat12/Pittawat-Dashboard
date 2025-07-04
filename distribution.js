@@ -1,3 +1,8 @@
+// 🔧 แก้ไขตามคำสั่ง (โดยผู้เชี่ยวชาญ):
+// 1. ใน collection 'patients' → set isActive: false (ห้ามแก้ field อื่น เช่น patient_status)
+// 2. ใน collection 'register_process_statuses' → ห้ามลบ document, set isActive: false แทน
+// 3. เพิ่มเงื่อนไข isActive: true ในการโหลดตึกและผู้ป่วย
+
 import { db } from './firebase.js';
 import {
   collection,
@@ -5,7 +10,6 @@ import {
   doc,
   getDoc,
   addDoc,
-  deleteDoc,
   query,
   where,
   updateDoc // Import updateDoc
@@ -29,16 +33,11 @@ const equipmentGroup = document.getElementById('equipmentGroup');
 const equipmentOtherCheckbox = document.getElementById('equipmentOther');
 const equipmentOtherReasonTextarea = document.getElementById('equipmentOtherReason');
 
-// Collections to clear when a patient is 'Discharged' (excluding 'data' and 'patients')
-const collectionsToClear = [
-    "physicalPreps",
-    "register_process_statuses",
-    "delay_statuses"
-];
-
-// โหลดรายการตึก (ไม่เปลี่ยนแปลง)
+// โหลดรายการตึก
 async function loadBuildings() {
-  const snapshot = await getDocs(collection(db, 'patients'));
+  // Query only patients where isActive is true
+  const q = query(collection(db, 'patients'), where('isActive', '==', true));
+  const snapshot = await getDocs(q);
   const buildings = new Set();
 
   buildingFilter.innerHTML = `<option value="">-- เลือกตึก --</option>`;
@@ -60,7 +59,7 @@ async function loadBuildings() {
   });
 }
 
-// โหลดผู้ป่วยตามตึก หรือโหลดทั้งหมดหากเลือก 'all' (ไม่เปลี่ยนแปลง)
+// โหลดผู้ป่วยตามตึก หรือโหลดทั้งหมดหากเลือก 'all'
 async function loadPatientsByBuilding(buildingId) {
     patientFilter.innerHTML = `<option value="">-- เลือกผู้ป่วย --</option>`;
     patientFilter.disabled = true;
@@ -72,9 +71,11 @@ async function loadPatientsByBuilding(buildingId) {
 
     let q;
     if (buildingId === 'all') {
-        q = collection(db, 'patients');
+        // Query all active patients
+        q = query(collection(db, 'patients'), where('isActive', '==', true));
     } else {
-        q = query(collection(db, 'patients'), where('building', '==', buildingId));
+        // Query active patients in a specific building
+        q = query(collection(db, 'patients'), where('building', '==', buildingId), where('isActive', '==', true));
     }
 
     try {
@@ -317,17 +318,18 @@ async function handleDischargeSubmit(event) {
     alert("บันทึกข้อมูลการจำหน่ายยาสำเร็จ!");
 
     if (selectedDischargeOption === 'discharge') {
-        // Update patient status in 'patients' collection
+        // Update patient status in 'patients' collection to isActive: false
         const patientRef = doc(db, "patients", selectedPatientId);
         await updateDoc(patientRef, {
-            patient_status: "false" 
+            isActive: false
         });
         console.log(`Patient ${selectedPatientId} status updated to 'false' in 'patients' collection.`);
 
         // Update isActive/patient_status in other relevant collections
         const collectionsToUpdateStatus = [
             "data", // 'data' collection itself
-            "patient_alerts"
+            "patient_alerts",
+            "register_process_statuses" // Added 'register_process_statuses'
         ];
 
         for (const colName of collectionsToUpdateStatus) {
@@ -335,24 +337,18 @@ async function handleDischargeSubmit(event) {
             const snapshot = await getDocs(q);
             const updatePromises = [];
             snapshot.forEach(docToUpdate => {
-                const updateField = colName === "patients" ? "patient_status" : "isActive";
+                // For 'register_process_statuses', specifically set isActive: false
+                // For other collections, the field might be 'isActive' or 'patient_status' as per original logic.
+                // Assuming 'isActive' is the correct field for 'data' and 'patient_alerts' based on the problem description.
+                const updateField = 'isActive'; 
                 updatePromises.push(updateDoc(doc(db, colName, docToUpdate.id), { [updateField]: false }));
             });
             await Promise.all(updatePromises);
-            console.log(`Updated ${snapshot.size} documents in '${colName}' to isActive/patient_status: false for patient ${selectedPatientId}.`);
+            console.log(`Updated ${snapshot.size} documents in '${colName}' to isActive: false for patient ${selectedPatientId}.`);
         }
 
-        // Clear other collections as before
-        for (const colName of collectionsToClear) {
-            const q = query(collection(db, colName), where("patientId", "==", selectedPatientId));
-            const snapshot = await getDocs(q);
-            const deletePromises = [];
-            snapshot.forEach(docToDelete => {
-                deletePromises.push(deleteDoc(doc(db, colName, docToDelete.id)));
-            });
-            await Promise.all(deletePromises);
-            console.log(`Cleared ${snapshot.size} documents from '${colName}' for patient ${selectedPatientId}.`);
-        }
+        // REMOVED: All code related to 'collectionsToClear' and 'deleteDoc'
+
         alert(`ผู้ป่วย ${patientName} ได้รับการจำหน่ายและข้อมูลที่เกี่ยวข้องถูกอัปเดตแล้ว`);
     }
 
@@ -363,8 +359,8 @@ async function handleDischargeSubmit(event) {
     loadPatientsByBuilding('');
 
   } catch (error) {
-    console.error("Error saving/updating/deleting data: ", error);
-    alert("เกิดข้อผิดพลาดในการบันทึกหรือลบข้อมูล: " + error.message);
+    console.error("Error saving/updating data: ", error); // Changed message to reflect no deletion
+    alert("เกิดข้อผิดพลาดในการบันทึกหรืออัปเดตข้อมูล: " + error.message); // Changed message
   }
 }
 

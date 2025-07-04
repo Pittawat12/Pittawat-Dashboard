@@ -88,12 +88,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fetchBuildings = async () => {
         console.log("Fetching unique building IDs from 'patients' collection...");
         try {
-            const patientsSnapshot = await getDocs(collection(db, "patients"));
+            // Filter by isActive: true
+            const patientsQuery = query(collection(db, "patients"), where("isActive", "==", true));
+            const patientsSnapshot = await getDocs(patientsQuery);
             buildingFilterSelect.innerHTML = '<option value="">-- เลือกตึก --</option>'; // Clear existing options
 
             const uniqueBuildings = new Set();
             if (patientsSnapshot.empty) {
-                console.log("No 'patients' documents found.");
+                console.log("No active 'patients' documents found.");
                 const noBuildingOption = document.createElement('option');
                 noBuildingOption.value = '';
                 noBuildingOption.textContent = 'ไม่มีตึกในระบบ (ยังไม่มีผู้ป่วยลงทะเบียน)';
@@ -136,7 +138,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            const patientsQuery = query(collection(db, "patients"), where("building", "==", buildingId));
+            // Filter by building and isActive: true
+            const patientsQuery = query(collection(db, "patients"), where("building", "==", buildingId), where("isActive", "==", true));
             const patientsSnapshot = await getDocs(patientsQuery);
 
             if (patientsSnapshot.empty) {
@@ -358,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             patientName: currentPatientName,
             buildingId: selectedBuildingId,
             timestamp: new Date(),
-            status: "active", // Added status field with "active" value
+            // Removed: status: "active", // Removed status field as requested
             isActive: true // เพิ่มช่องสุดท้ายเป็น active ตามที่ร้องขอ
         };
 

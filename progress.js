@@ -70,13 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const bed = document.getElementById('bed').value.trim();
             const admissionDate = document.getElementById('admissionDate').value;
             const Diagnosis = document.getElementById('Diagnosis').value.trim();
-            const operation = document.getElementById('operation').value.trim(); // <--- เพิ่มการดึงค่า Operation
+            const operation = document.getElementById('operation').value.trim();
             const operationDate = document.getElementById('operationDate').value;
             const goal = document.getElementById('goal').value.trim();
 
             // ตรวจสอบข้อมูลเบื้องต้น
             if (!name || !building || !admissionDate || !Diagnosis) {
-                alert("กรุณากรอกข้อมูล Name, ตึก, วันที่รับเข้า, และการวินิจฉัย");
+                alert("กรุณากรอกข้อมูล Name, ตึก, วันที่รับเข้า, และการวินิจฉ0ัย");
                 return;
             }
 
@@ -87,11 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     bed,
                     admissionDate,
                     Diagnosis,
-                    operation, // <--- เพิ่ม field Operation เข้าไปใน Document
+                    operation,
                     operationDate,
                     goal,
-                    patient_status: "Active", // <--- เพิ่มสถานะ Active สำหรับผู้ป่วยใหม่
-                    timestamp: serverTimestamp() // ใช้ serverTimestamp เพื่อความแม่นยำของเวลาเซิร์ฟเวอร์
+                    isActive: true, // Changed from patient_status: "Active" to isActive: true
+                    timestamp: serverTimestamp()
                 });
 
                 alert("บันทึกข้อมูลสำเร็จ");

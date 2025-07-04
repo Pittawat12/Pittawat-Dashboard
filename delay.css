@@ -316,17 +316,15 @@ select:focus {
   border-color: #FF4136;
 }
 
-/* เครื่องหมายติ๊กถูกสีขาว */
+/* สำหรับแสดงเครื่องหมายถูกเมื่อ status-checkbox ถูกเลือก */
 .status-checkbox:checked::after {
-  content: "";
+  content: '\2713'; /* รหัส Unicode สำหรับเครื่องหมายถูก */
+  color: white; /* สีของเครื่องหมายถูก */
+  font-size: 14px; /* ขนาดของเครื่องหมายถูก */
   position: absolute;
-  left: 3px;
-  top: 0px;
-  width: 6px;
-  height: 12px;
-  border: solid white;
-  border-width: 0 3px 3px 0;
-  transform: rotate(45deg);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .overlay-menu .nav-list a:hover,

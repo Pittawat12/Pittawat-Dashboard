@@ -157,8 +157,8 @@ body.no-scroll {
 
 .overlay-menu .nav-list a:hover,
 .overlay-menu .nav-list a.active {
-    background-color: #e0e0e0;
-    color: #000;
+    background-color: #ff6f61; /* สีพื้นหลังเมื่อ hover/active */
+    color: white;
 }
 
 /* ==========================================================================\

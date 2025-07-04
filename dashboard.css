@@ -1,0 +1,291 @@
+/* dashboard.css */
+
+/* --- Base Styles --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #eef2f6; /* Soft light blue background */
+    color: #333;
+    line-height: 1.6;
+}
+
+/* --- Header --- */
+.main-header-bar {
+    background-color: #007bff; /* Primary blue */
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky; /* ทำให้ Header อยู่ด้านบนเสมอ */
+    top: 0;
+    z-index: 1000;
+}
+
+.main-header-bar .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* --- Main Dashboard Layout --- */
+.dashboard-main {
+    padding: 20px;
+    max-width: 1400px; /* ขยายความกว้างของ Dashboard (จะถูกปรับใน Media Query สำหรับ Desktop) */
+    margin: 20px auto; /* จัดกึ่งกลาง */
+}
+
+.dashboard-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.dashboard-title {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 35px;
+    font-size: 2.2em;
+    font-weight: 700;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+/* --- Dashboard Grid Layout --- */
+.dashboard-grid {
+    display: grid;
+    /* ค่าเริ่มต้นสำหรับหน้าจอเล็กและกลาง (จะถูกแทนที่ด้วย Media Query สำหรับ Desktop) */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px; /* ระยะห่างระหว่างกรอบ */
+    margin-bottom: 40px;
+}
+
+.dashboard-card {
+    background-color: #fcfcfc; /* พื้นหลังการ์ด */
+    border: 1px solid #e0e0e0; /* ขอบการ์ด */
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 150px; /* ความสูงขั้นต่ำของการ์ด */
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.dashboard-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #007bff;
+    font-size: 1.3em;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dashboard-card .data-value {
+    font-size: 3em;
+    font-weight: bold;
+    color: #343a40;
+    text-align: center;
+    margin-top: auto; /* Push content to bottom */
+}
+
+.dashboard-card .description {
+    font-size: 0.9em;
+    color: #666;
+    text-align: center;
+}
+
+.patient-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.patient-item {
+    background-color: #ffffff; /* เปลี่ยนเป็นสีขาวเพื่อให้ดูเป็นกรอบแยกชัดเจนขึ้น */
+    border: 1px solid #cce5ff; /* ขอบสีฟ้าอ่อน */
+    border-radius: 8px; /* เพิ่มความโค้งมน */
+    padding: 12px 15px; /* เพิ่ม padding เล็กน้อย */
+    margin-bottom: 10px; /* เพิ่มระยะห่างระหว่างแต่ละรายการ */
+    font-size: 0.9em;
+    color: #333;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start; /* จัดให้อยู่ด้านบนหากมีการขึ้นบรรทัดใหม่ */
+    flex-wrap: wrap; /* อนุญาตให้ข้อความยาวๆ ขึ้นบรรทัดใหม่ได้ถ้าจำเป็น */
+    gap: 3px; /* ลดระยะห่างเล็กน้อยระหว่าง Patient ID และข้อความ Alert ให้ชิดกันขึ้น */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* เพิ่มเงาให้ดูมีมิติมากขึ้น */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* เพิ่ม transition สำหรับ hover */
+    word-break: break-all; /* เพิ่มการตัดคำที่รุนแรงขึ้นสำหรับข้อความยาวๆ เพื่อให้พอดีกรอบ */
+}
+
+.patient-item:hover {
+    transform: translateY(-2px); /* ยกขึ้นเล็กน้อยเมื่อ hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* เงาเข้มขึ้นเมื่อ hover */
+}
+
+.patient-item:last-child {
+    margin-bottom: 0;
+}
+
+.patient-name {
+    font-weight: bold;
+    color: #0056b3;
+    white-space: nowrap; /* Ensures name and ID don't wrap */
+    flex-shrink: 0; /* Ensures the patient name takes its full space and doesn't shrink */
+}
+
+.no-data-message {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* --- Charts Section Layout --- */
+.charts-section {
+    display: grid;
+    /* ค่าเริ่มต้นสำหรับหน้าจอเล็กและกลาง (จะถูกแทนที่ด้วย Media Query สำหรับ Desktop) */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px; /* ระยะห่างระหว่างกรอบ */
+    margin-top: 40px;
+}
+
+.chart-card {
+    background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    min-height: 280px; /* ลดความสูงขั้นต่ำของการ์ดกราฟลง */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* จัดเนื้อหาให้กระจายเต็มพื้นที่ */
+}
+
+.chart-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #007bff;
+    font-size: 1.3em;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: center;
+}
+
+.chart-card canvas {
+    max-width: 100%;
+    height: auto;
+    flex-grow: 1; /* ให้ canvas ขยายเต็มพื้นที่ที่เหลือ */
+}
+
+.chart-summary {
+    margin-top: 20px;
+    font-size: 1em;
+    color: #555;
+    text-align: center;
+    width: 100%;
+    padding: 0 10px;
+}
+.chart-summary p {
+    margin: 5px 0;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+    .dashboard-grid, .charts-section {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    .dashboard-container {
+        padding: 20px;
+    }
+    .dashboard-title {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+    }
+    .chart-card {
+        height: 250px; /* ลดความสูงลงสำหรับแท็บเล็ต */
+    }
+    .chart-card canvas {
+        max-height: 150px; /* ลดความสูงสูงสุดของ canvas สำหรับแท็บเล็ต */
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-main {
+        padding: 15px;
+    }
+    .dashboard-container {
+        padding: 15px;
+    }
+    .dashboard-title {
+        font-size: 1.6em;
+        margin-bottom: 20px;
+    }
+    .dashboard-card {
+        padding: 15px;
+    }
+    .dashboard-card h3 {
+        font-size: 1.2em;
+    }
+    .dashboard-card .data-value {
+        font-size: 2.5em;
+    }
+    .chart-card {
+        min-height: 220px; /* ลดความสูงลงสำหรับโทรศัพท์ */
+        padding: 15px;
+    }
+}
+
+/* --- New: Desktop Specific Horizontal Layout (ตั้งแต่ 993px ขึ้นไป) --- */
+@media (min-width: 993px) {
+    .dashboard-main {
+        max-width: 2000px; /* ปรับลดความกว้างสูงสุดของ Dashboard บน Desktop ให้พอดีขึ้น */
+    }
+
+    .dashboard-grid {
+        /* บังคับให้เป็น 3 คอลัมน์เท่าๆ กัน สำหรับ Desktop */
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px; /* รักษาระยะห่างเดิม */
+    }
+
+    .charts-section {
+        /* บังคับให้เป็น 2 คอลัมน์เท่าๆ กัน สำหรับ Desktop */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px; /* รักษาระยะห่างเดิม */
+    }
+
+    /* Adjustments for chart cards on desktop */
+    .chart-card {
+        min-height: 380px; /* Increase min-height for more space, adjust as needed */
+        max-height: 450px; /* Set a max-height to prevent it from becoming too long */
+        height: auto; /* Allow height to adjust within min/max constraints */
+    }
+
+    .chart-card canvas {
+        max-height: 300px; /* Limit canvas height to keep it compact */
+        width: 100%;
+        height: auto; /* Allow canvas height to adjust proportionally */
+    }
+
+    /* การปรับปรุงเฉพาะสำหรับ patient-item บน Desktop เพื่อให้ข้อมูลพอดีขึ้น */
+    .patient-item {
+        justify-content: flex-start;
+        align-items: flex-start; /* จัดให้อยู่ด้านบนหากมีการขึ้นบรรทัดใหม่ */
+        flex-direction: row; /* ตรวจสอบให้แน่ใจว่าเป็นแนวนอน */
+        flex-wrap: wrap; /* อนุญาตให้ข้อความยาวๆ ขึ้นบรรทัดใหม่ได้ */
+        word-break: break-all; /* เปลี่ยนเป็น break-all เพื่อให้ตัดคำได้เข้มข้นขึ้น */
+        padding: 10px 15px; /* ปรับ padding ให้เหมาะสมกับ desktop */
+    }
+
+    .patient-item .patient-name {
+        margin-right: 8px; /* ระยะห่างระหว่างชื่อผู้ป่วยและข้อความ Alert บน Desktop */
+    }
+}

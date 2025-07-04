@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>SUMMARY - Hip Go Goal</title>
     <link rel="stylesheet" href="progress.css" />
-    <link rel="stylesheet" href="dashboard.css" /> 
+    <link rel="stylesheet" href="dashboard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="dashboard.js" defer></script>
 </head>
 <body>
 
@@ -25,20 +27,81 @@
             <div class="sidebar-content-overlay">
                 <div class="logo-overlay">Hip Go Goal</div>
                 <ul class="nav-list">
-                    <li><a href="index.html">LOGIN</a></li>
-                    <li><a href="dashboard.html" class="active">SUMMARY</a></li>
+                    <li><a href="index.html" >LOGIN</a></li>
+                    <li><a href="dashboard.html"class="active">SUMMARY</a></li>
                     <li><a href="progress.html">REGISTER PROCESS</a></li>
                     <li><a href="process.html">PHYSICAL</a></li>
-                    <li><a href="discharge.html">DISPENSING OF MEDICATION</a></li>
-                    <li><a href="delay.html">PROGRESS GOAL</a></li>
-                    </ul>
+                    <li><a href="discharge.html"  >REGISTER PROCESS</a></li>
+                    <li><a href="delay.html"  >Progress Goal</a></li>
+                    <li><a href="distribution.html" >DISPENSING OF MEDICATON</a></li>
+                </ul>
             </div>
         </div>
     </nav>
+    <main class="dashboard-main">
+        <div class="dashboard-container">
+            <h1 class="dashboard-title">Summary</h1>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card total-patients">
+                        <h3>ยอดผู้ป่วยทั้งหมด</h3>
+                            <p class="data-value" id="totalPatientsCount">0</p>
+                    </div>
+                <div class="dashboard-card alert-box physical-prep-alert">
+                    <h3>แจ้งทำกายภาพ</h3>
+                        <div class="alert-list" id="physicalPrepAlertList">
+                            <p class="no-data-message">ไม่มีผู้ป่วยแจ้งทำกายภาพ</p>
+                        </div>
+                </div>
+                <div class="dashboard-card alert-box ready-physical-alert">
+                    <h3>พร้อมทำกายภาพ</h3>
+                        <div class="alert-list" id="readyPhysicalAlertList">
+                             <p class="no-data-message">ไม่มีผู้ป่วยพร้อมทำกายภาพ</p>
+                        </div>
+                </div>
+                <div class="dashboard-card alert-box pain-problem-alert">
+                    <h3>Pain Problem</h3>
+                        <div class="alert-list" id="painProblemAlertList">
+                            <p class="no-data-message">ไม่มีผู้ป่วย Pain Problem</p>
+                        </div>
+                </div>
+                <div class="dashboard-card alert-box out-of-building-alert">
+                    <h3>ผู้ป่วยออกนอกตึก</h3>
+                        <div class="alert-list" id="outOfBuildingAlertList">
+                            <p class="no-data-message">ไม่มีผู้ป่วยออกนอกนอกตึก</p>
+                        </div>
+                </div>
+                <div class="dashboard-card alert-box complication-alert">
+                    <h3>มีภาวะแทรกซ้อน</h3>
+                        <div class="alert-list" id="complicationAlertList">
+                            <p class="no-data-message">ไม่มีผู้ป่วยมีภาวะแทรกซ้อน</p>
+                        </div>
+                </div>
+                <div class="dashboard-card discharge-today">
+                    <h3>D/C today</h3>
+                        <div class="alert-list" id="dischargeTodayList">
+                            <p class="no-data-message">ไม่มีผู้ป่วย D/C today</p>
+                        </div>
+                </div>
+                <div class="dashboard-card discharge-tomorrow">
+                    <h3>D/C tommorrow</h3>
+                        <div class="alert-list" id="dischargeTomorrowList">
+                            <p class="no-data-message">ไม่มีผู้ป่วย D/C tommorrow</p>
+                        </div>
+                </div>
+                </div> <div class="charts-section">
+                    <div class="chart-card ambulate-chart-card">
+                        <h3>Ambulate</h3>
+                            <canvas id="ambulateBarChart"></canvas>
+                            <p class="no-data-message" id="noAmbulateData" style="display: none;">ไม่มีข้อมูล Ambulate</p>
+                    </div>
+                <div class="chart-card goal-ambulation-chart-card">
+                    <h3>Goal Ambulation</h3>
+                    <canvas id="goalAmbulationPieChart"></canvas>
+                    <p class="no-data-message" id="noGoalData" style="display: none;">ไม่มีข้อมูล Goal Ambulation</p>
+                    <div class="chart-summary" id="goalAmbulationSummary">
+                        </div>
+                </div>
+        </main>
 
-    
-
-    <script type="module" src="firebase.js"></script>
-    <script type="module" src="dashboard.js" defer></script>
-</body>
+    </body>
 </html>
