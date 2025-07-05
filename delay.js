@@ -6,7 +6,15 @@ import {
     doc, getDoc, updateDoc, addDoc // เพิ่ม addDoc ที่นี่
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-let currentPatientsData = []; // This will now hold combined data
+let currentPatientsData = []; // This will now hold combined data for export
+
+// Global maps to hold real-time data from each collection
+let patientsDataCache = new Map(); // Stores data from 'patients' collection (patientId -> docData)
+let statusesDataCache = new Map(); // Stores data from 'register_process_statuses' collection (patientId -> docData)
+let equipmentDataCache = new Map(); // Stores data from 'data' collection (patientId -> docData)
+
+let currentBuildingFilter = 'all'; // Keep track of the current building filter
+
 let globalDischargeCriteria = {}; // To store the common discharge criteria fetched from 'data' collection
 let globalEquipment = {};     // To store the common equipment list fetched from 'data' collection
 
@@ -16,12 +24,17 @@ const renderStatusCheckbox = (isCompleted, label, delayReason) => {
     // It will always be disabled as per the requirement in the image.
     const statusClass = isCompleted ? 'blue' : 'red';
     const checkedAttribute = isCompleted ? 'checked' : '';
+
+    // NEW LOGIC for displaying delayReason based on user's specific conditions:
+    // Display reason ONLY if completed is TRUE, AND delayReason exists and is not empty string or "weak_null"
+    const shouldShowReason = isCompleted && delayReason && delayReason !== '' && delayReason !== 'weak_null';
+
     return `
         <label class="status-item">
             <input type="checkbox" class="status-checkbox ${statusClass}" ${checkedAttribute} disabled>
             <span>${label}</span>
         </label>
-        ${(!isCompleted && delayReason && delayReason !== '') ? `<p class="delay-reason-text">เหตุผล: ${delayReason}</p>` : ''}
+        ${shouldShowReason ? `<p class="delay-reason-text">เหตุผล: ${delayReason}</p>` : ''}
     `;
 };
 
@@ -58,25 +71,26 @@ const renderDischargeCriteria = (patientCriteria) => {
 };
 
 // Helper function for rendering Equipment (uses global data and patient's selected data)
-// This function needs to accept patient-specific equipment.
-// **แก้ไข**: ลบ dataDocId ออกจาก arguments และ data-attributes เพราะ updatePatientEquipment จะจัดการเอง
 const renderEquipment = (patientId, patientEquipment) => {
-    // ...
     let html = '<h3>อุปกรณ์</h3><div class="checkbox-group">';
     for (const key in globalEquipment) {
         const labelText = globalEquipment[key];
         const isChecked = patientEquipment && (patientEquipment[key] === true || typeof patientEquipment[key] === 'string');
+        const equipmentValue = patientEquipment ? patientEquipment[key] : null;
 
         html += `
             <label class="status-item">
-                <input type="checkbox" class="status-checkbox blue" // แก้ไขตรงนี้: เปลี่ยนเป็น class="status-checkbox blue"
+                <input type="checkbox" class="status-checkbox blue"
                        data-patient-id="${patientId}"
                        data-equipment-key="${key}"
                        ${isChecked ? 'checked' : ''}>
                 <span>${labelText}</span>
             </label>
         `;
-        // ...
+        // Conditionally display the string value for 'other' equipment on the dashboard
+        if (key === "other" && isChecked && typeof equipmentValue === 'string') {
+            html += `<p class="equipment-detail-text">ระบุ: ${equipmentValue}</p>`;
+        }
     }
     html += '</div>';
     return html;
@@ -84,30 +98,28 @@ const renderEquipment = (patientId, patientEquipment) => {
 
 // Function to calculate Post-op Day and Length of Stay
 const calculateDates = (admissionDateStr, operationDateStr) => {
-    // Get today's date and normalize it to local start of the day (00:00:00.000 local time)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
-    let postOpDay = 'N/A'; // Default to N/A for truly invalid/missing dates
+    let postOpDay = 'N/A';
     if (operationDateStr) {
-        const opDate = new Date(operationDateStr.split('T')[0]); // Parse only date part
-        if (!isNaN(opDate.getTime())) { // Only proceed if a valid date was parsed
-            opDate.setHours(0, 0, 0, 0); // Normalize parsed date to local midnight
+        const opDate = new Date(operationDateStr.split('T')[0]);
+        if (!isNaN(opDate.getTime())) {
+            opDate.setHours(0, 0, 0, 0);
             const diffDaysOp = Math.floor((today.getTime() - opDate.getTime()) / MILLISECONDS_PER_DAY);
-            postOpDay = diffDaysOp; // Will be negative if opDate is in the future, as per user's request to avoid "N/A"
+            postOpDay = diffDaysOp;
         }
     }
 
-    let lengthOfStay = 'N/A'; // Default to N/A for truly invalid/missing dates
+    let lengthOfStay = 'N/A';
     if (admissionDateStr) {
-        const admDate = new Date(admissionDateStr); // admissionDateStr might not have time component
-        if (!isNaN(admDate.getTime())) { // Only proceed if a valid date was parsed
-            admDate.setHours(0, 0, 0, 0); // Normalize parsed date to local midnight
+        const admDate = new Date(admissionDateStr);
+        if (!isNaN(admDate.getTime())) {
+            admDate.setHours(0, 0, 0, 0);
             const diffTimeAdm = today.getTime() - admDate.getTime();
-            lengthOfStay = Math.floor(diffTimeAdm / MILLISECONDS_PER_DAY) + 1; // +1 to include the admission day
-            // Will be negative (+1) if admDate is in the future, as per user's request to avoid "N/A"
+            lengthOfStay = Math.floor(diffTimeAdm / MILLISECONDS_PER_DAY) + 1;
         }
     }
     return { postOpDay, lengthOfStay };
@@ -133,10 +145,8 @@ const renderPatientCards = (patients) => {
 
         const name = patient.name;
         const building = patient.building;
-        // Ensure patient.admissionDate and patient.operationDate are passed correctly
         const { postOpDay, lengthOfStay } = calculateDates(patient.admissionDate, patient.operationDate);
 
-        // Fetching status from patient.statuses
         const sittingCompleted = patient.statuses?.sitting?.completed || false;
         const standingCompleted = patient.statuses?.standing?.completed || false;
         const ambulationCompleted = patient.statuses?.goal_ambulation?.completed || false;
@@ -146,13 +156,11 @@ const renderPatientCards = (patients) => {
         const ambulationDelayReason = patient.statuses?.goal_ambulation?.delayReason || '';
 
         // Determine if there's any delay to set the card border color
-        const hasDelay = !sittingCompleted || !standingCompleted || !ambulationCompleted; //
-        patientCard.classList.add(hasDelay ? 'card-delayed' : 'card-no-delay'); //
+        const hasDelay = !sittingCompleted || !standingCompleted || !ambulationCompleted;
+        patientCard.classList.add(hasDelay ? 'card-delayed' : 'card-no-delay');
 
         const patientDischargeCriteria = patient.dischargeCriteria || {};
         const patientEquipment = patient.equipment || {};
-        // **แก้ไข**: ไม่จำเป็นต้องส่ง patient.dataDocId ไปยัง renderEquipment แล้ว เพราะ updatePatientEquipment จะจัดการเอง
-        // const patientDataDocId = patient.dataDocId || null; 
 
         patientCard.innerHTML = `
             <div class="patient-info">
@@ -171,101 +179,120 @@ const renderPatientCards = (patients) => {
                 ${renderDischargeCriteria(patientDischargeCriteria)}
             </div>
             <div class="equipment-info">
-                ${renderEquipment(patient.id, patientEquipment)} 
+                ${renderEquipment(patient.id, patientEquipment)}
             </div>
         `;
         patientListDiv.appendChild(patientCard);
     });
 };
 
-// Function to fetch patients based on the selected building
-const fetchPatients = async (building = 'all') => {
-    try {
-        let q = query(collection(db, "patients"), where("isActive", "==", true));
-        if (building !== 'all') {
-            q = query(q, where("building", "==", building));
+// Function to combine cached data and render patients
+const combineAndRenderPatients = () => {
+    let combinedPatients = [];
+
+    // Iterate through all active patients from the patientsDataCache
+    for (const [patientId, patientDocData] of patientsDataCache.entries()) {
+        if (!patientDocData.isActive) {
+            continue; // Skip inactive patients
         }
 
-        onSnapshot(q, async (patientSnapshot) => {
-            console.log("onSnapshot triggered for patients collection. Number of docs:", patientSnapshot.docs.length);
+        // Apply building filter
+        if (currentBuildingFilter !== 'all' && patientDocData.building !== currentBuildingFilter) {
+            continue;
+        }
 
-            const patientsPromises = patientSnapshot.docs.map(async doc => {
-                const patientDataFromPatientsCollection = { id: doc.id, ...doc.data() };
-                
-                let statuses = {};
-                let dischargeCriteria = {};
-                let equipment = {};
+        const statusesDoc = statusesDataCache.get(patientId);
+        const equipmentDoc = equipmentDataCache.get(patientId);
 
-                // Step 1: Try to get dischargeCriteria and equipment from 'data' collection (highest priority)
-                const dataCollectionQuery = query(collection(db, "data"), where("patientId", "==", patientDataFromPatientsCollection.id));
-                const dataCollectionSnapshot = await getDocs(dataCollectionQuery);
+        // Prepare combined data for rendering
+        const statuses = statusesDoc?.statuses || {};
+        let dischargeCriteria = equipmentDoc?.dischargeCriteria || {};
+        const equipment = equipmentDoc?.equipment || {};
 
-                if (!dataCollectionSnapshot.empty) {
-                    const docDataFromDataCollection = dataCollectionSnapshot.docs[0].data();
-                    if (docDataFromDataCollection.dischargeCriteria) {
-                        dischargeCriteria = docDataFromDataCollection.dischargeCriteria;
-                    }
-                    if (docDataFromDataCollection.equipment) {
-                        equipment = docDataFromDataCollection.equipment;
-                    }
-                    console.log(`Fetched data document for patient ${patientDataFromPatientsCollection.id}:`, docDataFromDataCollection);
-                } else {
-                    console.log(`No data document found for patient ${patientDataFromPatientsCollection.id}.`);
-                }
+        // Fallback for dischargeCriteria if not in 'data' collection but in 'register_process_statuses'
+        if (Object.keys(dischargeCriteria).length === 0 && statusesDoc?.dischargeCriteria) {
+            dischargeCriteria = statusesDoc.dischargeCriteria;
+        }
 
-                // Step 2: Get statuses from 'register_process_statuses' collection (primary source for statuses)
-                const statusQuery = query(collection(db, "register_process_statuses"), where("patientId", "==", patientDataFromPatientsCollection.id), where("isActive", "==", true));
-                const statusSnapshot = await getDocs(statusQuery);
-
-                if (!statusSnapshot.empty) {
-                    const docDataFromStatusCollection = statusSnapshot.docs[0].data();
-                    if (docDataFromStatusCollection.statuses) {
-                        Object.assign(statuses, docDataFromStatusCollection.statuses);
-                    }
-                    // Step 3 (Fallback): If dischargeCriteria or equipment were NOT found in 'data' collection,
-                    // check 'register_process_statuses' as a fallback.
-                    if (Object.keys(dischargeCriteria).length === 0 && docDataFromStatusCollection.dischargeCriteria) {
-                        dischargeCriteria = docDataFromStatusCollection.dischargeCriteria;
-                    }
-                    if (Object.keys(equipment).length === 0 && docDataFromStatusCollection.equipment) {
-                        equipment = docDataFromStatusCollection.equipment;
-                    }
-                }
-
-                // Final patient object: Combine patient data from 'patients' collection with merged statuses, dischargeCriteria, and equipment.
-                const finalPatientData = { 
-                    ...patientDataFromPatientsCollection, 
-                    statuses, 
-                    dischargeCriteria, 
-                    equipment 
-                };
-                // *** เพิ่ม console.log ตรงนี้ ***
-                console.log(`Final patient data object for rendering (Patient: ${finalPatientData.patientName}, ID: ${finalPatientData.id}):`, JSON.parse(JSON.stringify(finalPatientData)));
-
-                return finalPatientData;
-            });
-
-            currentPatientsData = await Promise.all(patientsPromises);
-            console.log("Current Patients Data before rendering (full array):", JSON.parse(JSON.stringify(currentPatientsData))); 
-
-            renderPatientCards(currentPatientsData);
-        }, (error) => {
-            console.error("Error fetching patients (onSnapshot): ", error);
-            alert("เกิดข้อผิดพลาดในการดึงข้อมูลผู้ป่วยแบบเรียลไทม์: " + error.message);
+        combinedPatients.push({
+            id: patientId,
+            ...patientDocData,
+            statuses: statuses,
+            dischargeCriteria: dischargeCriteria,
+            equipment: equipment
         });
-
-    } catch (error) {
-        console.error("Error setting up patient fetch: ", error);
-        alert("เกิดข้อผิดพลาดในการตั้งค่าการดึงข้อมูลผู้ป่วย: " + error.message);
     }
+
+    currentPatientsData = combinedPatients; // Update the global array used for Excel export
+    renderPatientCards(combinedPatients); // Render the combined data
 };
 
+// Setup real-time listeners for all relevant collections
+const setupRealtimeListeners = () => {
+    // Listener for 'patients' collection
+    onSnapshot(query(collection(db, "patients")), (snapshot) => {
+        snapshot.docChanges().forEach(change => {
+            if (change.type === "added" || change.type === "modified") {
+                patientsDataCache.set(change.doc.id, change.doc.data());
+            } else if (change.type === "removed") {
+                patientsDataCache.delete(change.doc.id);
+                // Also remove related data from other caches if patient is removed
+                statusesDataCache.delete(change.doc.id);
+                equipmentDataCache.delete(change.doc.id);
+            }
+        });
+        console.log("Patients collection updated, triggering re-render.");
+        combineAndRenderPatients();
+    }, (error) => {
+        console.error("Error listening to patients collection: ", error);
+    });
 
-// Function to fetch buildings for the filter
+    // Listener for 'register_process_statuses' collection
+    // Assumes patientId is a field in the status document
+    onSnapshot(query(collection(db, "register_process_statuses")), (snapshot) => {
+        snapshot.docChanges().forEach(change => {
+            const patientIdFromStatusDoc = change.doc.data().patientId;
+            if (change.type === "added" || change.type === "modified") {
+                // Only store if the status doc is active, or if it's the latest one for the patient
+                // This logic assumes there's an 'isActive' field and only one active status doc per patient
+                if (change.doc.data().isActive) {
+                    statusesDataCache.set(patientIdFromStatusDoc, change.doc.data());
+                } else {
+                    statusesDataCache.delete(patientIdFromStatusDoc); // If it became inactive, remove it
+                }
+            } else if (change.type === "removed") {
+                statusesDataCache.delete(patientIdFromStatusDoc);
+            }
+        });
+        console.log("Statuses collection updated, triggering re-render.");
+        combineAndRenderPatients();
+    }, (error) => {
+        console.error("Error listening to register_process_statuses collection: ", error);
+    });
+
+    // Listener for 'data' collection
+    // Assumes patientId is a field in the data document
+    onSnapshot(query(collection(db, "data")), (snapshot) => {
+        snapshot.docChanges().forEach(change => {
+            const patientIdFromDataDoc = change.doc.data().patientId;
+            if (change.type === "added" || change.type === "modified") {
+                equipmentDataCache.set(patientIdFromDataDoc, change.doc.data());
+            } else if (change.type === "removed") {
+                equipmentDataCache.delete(patientIdFromDataDoc);
+            }
+        });
+        console.log("Data collection updated, triggering re-render.");
+        combineAndRenderPatients();
+    }, (error) => {
+        console.error("Error listening to data collection: ", error);
+    });
+};
+
+// Function to fetch buildings for the filter (remains largely same)
 const fetchBuildings = async () => {
     try {
         const q = query(collection(db, "patients"), where("isActive", "==", true));
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(q); // Use getDocs here as buildings are relatively static
         const buildings = new Set();
         snapshot.forEach(doc => {
             const data = doc.data();
@@ -283,94 +310,66 @@ const fetchBuildings = async () => {
             buildingSelect.appendChild(option);
         });
 
-        buildingSelect.value = 'all';
-        fetchPatients('all');
+        // Set initial filter and trigger initial render
+        buildingSelect.value = currentBuildingFilter; // Ensure the select reflects current filter
+        combineAndRenderPatients(); // Initial render after buildings are loaded
 
     } catch (error) {
         console.error("Error fetching buildings: ", error);
     }
 };
 
-// Function to fetch common discharge criteria and equipment from 'data' collection
-// *** แก้ไขการกำหนดชื่อ Label สำหรับ Discharge Criteria และ Equipment ให้ Hardcode ตรงตามรูปที่ 1 และจัดการการสะกดที่ถูกต้อง ***
+// Function to fetch common discharge criteria and equipment from 'data' collection (remains same)
 const fetchCommonData = async () => {
     try {
-        // กำหนด globalDischargeCriteria โดยตรงด้วยคีย์และชื่อแสดงผลที่ถูกต้องตามที่คาดหวัง
         globalDischargeCriteria = {
-            geriatric: 'Geriatric', // คีย์ที่ถูกต้องและการสะกดที่ถูกต้อง
+            geriatric: 'Geriatric',
             orthopedist: 'Orthopedist',
             physical_therapist: 'Physical Therapist'
         };
 
-        // กำหนด globalEquipment โดยตรงด้วยคีย์และชื่อแสดงผลที่ถูกต้องและครบถ้วน
         globalEquipment = {
             cane: 'Cane',
             walker: 'Walker',
-            wheel_chair: 'wheel chair', // เพิ่ม Wheel Chair
-            other: 'อื่นๆ ระบุ' // เปลี่ยนเป็น 'อื่นๆ ระบุ'
+            wheel_chair: 'wheel chair',
+            other: 'อื่นๆ ระบุ'
         };
-
-        // ส่วนนี้จะยังคงดึงข้อมูลจาก 'data' collection แต่จะไม่ถูกนำมาใช้เพื่อกำหนดโครงสร้างคีย์ของ global variables อีกต่อไป
-        // มีไว้เผื่อในอนาคตต้องการดึง label dynamic จาก DB
-        const dischargeQuery = query(collection(db, "data"), where("dischargeCriteria", "!=", null));
-        const dischargeSnapshot = await getDocs(dischargeQuery);
-        if (dischargeSnapshot.empty) {
-            console.warn("Discharge Criteria document not found in 'data' collection. Using default template.");
-        }
-
-        const equipmentQuery = query(collection(db, "data"), where("equipment", "!=", null));
-        const equipmentSnapshot = await getDocs(equipmentQuery);
-        if (equipmentSnapshot.empty) {
-            console.warn("Equipment document not found in 'data' collection. Using default template.");
-        }
         
         console.log("Fetched common discharge options (transformed):", globalDischargeCriteria);
         console.log("Fetched common equipment (transformed):", globalEquipment); 
 
     } catch (error) {
         console.error("Error fetching common data:", error);
-        // ในกรณีที่เกิดข้อผิดพลาด global variables จะยังคงถูกกำหนดตาม hardcoded template
     }
 };
 
-
-// === ฟังก์ชันใหม่: อัปเดตข้อมูลอุปกรณ์ของผู้ป่วยใน Firestore ===
-// **แก้ไข**: เปลี่ยน dataDocId เป็น patientId และปรับ logic การค้นหา/สร้างเอกสาร
+// Function to update patient equipment in Firestore (remains same logic, now triggers real-time listener)
 async function updatePatientEquipment(patientId, equipmentKey, isChecked) {
     console.log(`Attempting to update equipment: ${equipmentKey} to ${isChecked} for patientId: ${patientId}`);
 
     try {
         const dataCollectionRef = collection(db, "data");
-        // ค้นหาเอกสารใน 'data' collection ที่มี field 'patientId' ตรงกับ patientId ที่ได้รับ
         const q = query(dataCollectionRef, where("patientId", "==", patientId));
         const querySnapshot = await getDocs(q);
 
         const updateData = {};
-        // ใช้ Dot Notation เพื่ออัปเดต Nested Field (equipment.equipmentKey)
         updateData[`equipment.${equipmentKey}`] = isChecked;
 
         if (!querySnapshot.empty) {
-            // หากพบเอกสาร (คือมีเอกสารข้อมูลอุปกรณ์สำหรับผู้ป่วยรายนี้อยู่แล้ว)
             const existingDoc = querySnapshot.docs[0];
-            const dataDocRef = doc(db, "data", existingDoc.id); // ดึง Document ID ที่แท้จริงของเอกสารนั้น
-            await updateDoc(dataDocRef, updateData); // อัปเดตเอกสารที่มีอยู่
+            const dataDocRef = doc(db, "data", existingDoc.id);
+            await updateDoc(dataDocRef, updateData);
             console.log(`Successfully updated existing equipment for patient ${patientId} (Doc ID: ${existingDoc.id})`);
-            // *** เพิ่ม console.log ตรงนี้เมื่ออัปเดตสำเร็จ ***
-            console.log("Update to Firestore completed. Firestore should now trigger onSnapshot.");
         } else {
-            // หากไม่พบเอกสาร (คือยังไม่มีเอกสารข้อมูลอุปกรณ์สำหรับผู้ป่วยรายนี้)
-            // ให้สร้างเอกสารใหม่
             const initialData = {
-                patientId: patientId, // เก็บ patientId เป็น field ในเอกสารใหม่
+                patientId: patientId,
                 equipment: {
-                    [equipmentKey]: isChecked // กำหนดค่าอุปกรณ์เริ่มต้น
+                    [equipmentKey]: isChecked
                 },
-                dischargeCriteria: {} // ควรเริ่มต้น field อื่นๆ ที่คาดหวังด้วยหากจำเป็น
+                dischargeCriteria: {}
             };
-            const newDocRef = await addDoc(dataCollectionRef, initialData); // ให้ Firebase สร้าง Document ID ใหม่
+            const newDocRef = await addDoc(dataCollectionRef, initialData);
             console.log(`Successfully created new data document for patient ${patientId} (Doc ID: ${newDocRef.id}) and updated equipment.`);
-            // *** เพิ่ม console.log ตรงนี้เมื่อสร้างใหม่สำเร็จ ***
-            console.log("New document created in Firestore. Firestore should now trigger onSnapshot.");
         }
     } catch (error) {
         console.error(`Error updating/creating equipment for patient ${patientId} (Key: ${equipmentKey}, Value: ${isChecked}):`, error);
@@ -384,13 +383,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM Content Loaded. Initializing scripts for delay.html.');
 
     await fetchCommonData();
-
-    await fetchBuildings();
+    setupRealtimeListeners(); // Initialize real-time listeners first
+    await fetchBuildings(); // Then fetch buildings and trigger initial render via combineAndRenderPatients
 
     const buildingSelect = document.getElementById('building');
     if (buildingSelect) {
         buildingSelect.addEventListener('change', (event) => {
-            fetchPatients(event.target.value);
+            // No need to call fetchPatients with await, just update filter and re-render
+            currentBuildingFilter = event.target.value;
+            combineAndRenderPatients();
         });
     }
 
@@ -418,38 +419,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'Building': p.building || '',
                 'Post-Op Day': postOpDay,
                 'Length of Stay': lengthOfStay,
-                'Sitting (Completed)': sittingCompleted ? 'Completed' : 'Delayed', // Corrected to reflect meaning "Completed" means no delay
+                'Sitting (Completed)': sittingCompleted ? '✔' : '✖',
                 'Sitting (Delay Reason)': sittingDelayReason,
-                'Standing (Completed)': standingCompleted ? 'Completed' : 'Delayed',
+                'Standing (Completed)': standingCompleted ? '✔' : '✖',
                 'Standing (Delay Reason)': standingDelayReason,
-                'Goal Ambulation (Completed)': ambulationCompleted ? 'Completed' : 'Delayed',
+                'Goal Ambulation (Completed)': ambulationCompleted ? '✔' : '✖',
                 'Goal Ambulation (Delay Reason)': ambulationDelayReason,
             };
 
-            // Add Discharge Criteria columns dynamically based on globalDischargeCriteria
             for (const key in globalDischargeCriteria) {
                 const label = globalDischargeCriteria[key];
-                // Check for both correct key and misspelled 'geriatic'
                 const criterion = (p.dischargeCriteria && p.dischargeCriteria[key] && typeof p.dischargeCriteria[key] === 'object') ? p.dischargeCriteria[key] :
                                   (key === 'geriatric' && p.dischargeCriteria && p.dischargeCriteria['geriatic'] && typeof p.dischargeCriteria['geriatic'] === 'object') ? p.dischargeCriteria['geriatic'] : null;
 
                 const isChecked = criterion && 'checked' in criterion && criterion.checked;
-                const time = criterion && criterion.time ? new Date(criterion.time).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' }) : ''; // Format time for excel
+                const time = criterion && criterion.time ? new Date(criterion.time).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' }) : '';
 
-                row[`เกณฑ์จำหน่าย: ${label}`] = isChecked ? 'ใช่' : 'ไม่ใช่';
-                row[`เกณฑ์จำหน่าย: ${label} (เวลา)`] = time; // Add time to excel export
+                row[`: ${label}`] = isChecked ? '✔' : '✖';
+                row[`: ${label} (เวลา)`] = time;
             }
 
-            // Add Equipment columns dynamically based on globalEquipment
             for (const key in globalEquipment) {
                 const label = globalEquipment[key];
                 const isChecked = p.equipment && (p.equipment[key] === true || typeof p.equipment[key] === 'string');
                 
                 if (key === "other") {
-                    row[`อุปกรณ์: ${label}`] = isChecked ? 'ใช่' : 'ไม่ใช่';
+                    row[`อุปกรณ์: ${label}`] = isChecked ? '✔' : '✖';
                     row[`อุปกรณ์: ${label} (ระบุ)`] = isChecked && typeof p.equipment[key] === 'string' ? p.equipment[key] : '';
                 } else {
-                    row[`อุปกรณ์: ${label}`] = isChecked ? 'ใช่' : 'ไม่ใช่';
+                    row[`อุปกรณ์: ${label}`] = isChecked ? '✔' : '✖';
                 }
             }
             return row;
@@ -457,7 +455,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "DelayPatients"); // เปลี่ยน wb, wb เป็น wb, ws
+        XLSX.utils.book_append_sheet(wb, ws, "DelayPatients");
         const filename = `Progress_Goal_${new Date().toISOString().slice(0, 10)}.xlsx`;
         XLSX.writeFile(wb, filename);
     };
@@ -466,24 +464,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         exportExcelBtn.addEventListener('click', exportPatientsToExcel);
     }
 
-    // === Event Listener ใหม่: สำหรับ Checkbox อุปกรณ์ต่างๆ ===
-    const patientListDiv = document.getElementById('patientList'); // อ้างอิงถึง Element หลักที่ครอบคลุม Patient Card ทั้งหมด
+    const patientListDiv = document.getElementById('patientList');
     if (patientListDiv) {
         patientListDiv.addEventListener('change', async (event) => {
-            // ตรวจสอบว่า Element ที่ถูกเปลี่ยนแปลงคือ Checkbox ของอุปกรณ์หรือไม่
             if (event.target.matches('.equipment-info input[type="checkbox"]')) {
                 const checkbox = event.target;
-                const patientId = checkbox.dataset.patientId; // ดึง patientId จาก data attribute
-                // **แก้ไข**: ลบ dataDocId ออกไป
-                // const dataDocId = checkbox.dataset.dataDocId; 
-                const equipmentKey = checkbox.dataset.equipmentKey; // ดึง equipmentKey จาก data attribute
-                const isChecked = checkbox.checked; // ดึงสถานะปัจจุบันของ Checkbox
+                const patientId = checkbox.dataset.patientId;
+                const equipmentKey = checkbox.dataset.equipmentKey;
+                const isChecked = checkbox.checked;
 
-                // **แก้ไข**: ส่งแค่ patientId ไปยังฟังก์ชัน updatePatientEquipment
-                if (patientId && equipmentKey) { 
+                if (patientId && equipmentKey) {
                     await updatePatientEquipment(patientId, equipmentKey, isChecked);
-                    // การอัปเดต UI จะถูกจัดการโดย onSnapshot listener ใน fetchPatients โดยอัตโนมัติ
-                    // จึงไม่จำเป็นต้องจัดการ DOM โดยตรงที่นี่
                 } else {
                     console.warn("Missing patientId or equipmentKey for update.", {patientId, equipmentKey});
                     alert("ไม่สามารถอัปเดตอุปกรณ์ได้: ข้อมูลผู้ป่วยไม่สมบูรณ์");
@@ -492,7 +483,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // === Hamburger Menu Functionality ===
     const hamburgerMenu = document.getElementById('hamburgerMenu');
     const overlayMenu = document.getElementById('overlayMenu');
     const closeMenuBtn = document.getElementById('closeMenu');
@@ -526,7 +516,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // === Active Link Logic ===
     const activeNavLinks = document.querySelectorAll('.overlay-menu .nav-list a');
     const currentPath = window.location.pathname.split('/').pop();
     activeNavLinks.forEach(link => {
