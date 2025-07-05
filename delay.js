@@ -218,10 +218,9 @@ const renderPatientCards = (patients) => {
         patientCard.innerHTML = `
             <div class="patient-info">
                 <h2>${name || 'ไม่ระบุชื่อ'}</h2>
-                <p><strong>ID:</strong> ${patient.id || 'N/A'}</p>
-                <p><strong>ตึก:</strong> ${building || 'N/A'} | <strong>ห้อง:</strong> ${room || 'N/A'}</p>
-                <p><strong>วันผ่าตัด:</strong> ${patient.operationDate || 'N/A'} (หลังผ่าตัด: ${postOpDay} วัน)</p>
-                <p><strong>วันที่เข้าพัก:</strong> ${patient.admissionDate || 'N/A'} (พัก: ${lengthOfStay} วัน)</p>
+                <p><strong>ตึก:</strong> ${building } </p>
+                <p><strong>Post-Op Day:</strong> ${postOpDay} วัน</p>
+                <p><strong>Length Of Stay:</strong>${lengthOfStay} วัน</p>
             </div>
             <div class="status-section">
                 <h3>Progress Status</h3>
@@ -235,7 +234,7 @@ const renderPatientCards = (patients) => {
                     ${renderDischargeCriteria(patientDischargeCriteria)}
                     ${renderEquipment(patient.id, patientEquipment)}
                 ` : `
-                    <p class="discharge-status-text">สถานะ Discharge: ยังไม่จำหน่าย</p>
+
                     ${renderDischargeCriteria(patientDischargeCriteria)}
                     ${renderEquipment(patient.id, patientEquipment)}
                 `}
@@ -540,19 +539,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const ambulationDelayReason = p.statuses?.goal_ambulation?.delayReason || '';
 
             const row = {
-                'HN': p.id || '',
                 'Name': p.name || '',
                 'Building': p.building || '',
-                'Room': p.room || '', // Added Room
-                'Post-Op Day': postOpDay,
+                'Post-Op Day': postOpDay ,
                 'Length of Stay': lengthOfStay,
-                'Sitting (Completed)': sittingCompleted ? '✔' : '✖',
-                'Sitting (Delay Reason)': sittingCompleted && sittingDelayReason ? sittingDelayReason : '', // Updated logic for export
-                'Standing (Completed)': standingCompleted ? '✔' : '✖',
-                'Standing (Delay Reason)': standingCompleted && standingDelayReason ? standingDelayReason : '', // Updated logic for export
-                'Goal Ambulation (Completed)': ambulationCompleted ? '✔' : '✖',
-                'Goal Ambulation (Delay Reason)': ambulationCompleted && ambulationDelayReason ? ambulationDelayReason : '', // Updated logic for export
-                'Discharge Option': p.dischargeData?.dischargeOption || 'N/A', // Added Discharge Option
+                'Sitting': sittingCompleted ? '✔' : '✖',
+                'Delay Sitting': sittingCompleted && sittingDelayReason ? sittingDelayReason : '', // Updated logic for export
+                'Standing': standingCompleted ? '✔' : '✖',
+                'Delay Standing': standingCompleted && standingDelayReason ? standingDelayReason : '', // Updated logic for export
+                'Goal Ambulation': ambulationCompleted ? '✔' : '✖',
+                'Delay Goal Ambulation': ambulationCompleted && ambulationDelayReason ? ambulationDelayReason : '', // Updated logic for export
             };
 
             // Add Discharge Criteria to Excel
@@ -573,8 +569,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
 
-                row[`Discharge Criteria: ${label}`] = isChecked ? '✔' : '✖';
-                row[`Discharge Criteria: ${label} (Time)`] = time;
+                row[`${label} `] = isChecked ? '✔' : '✖';
+                row[`(Time) ${label} `] = time;
             }
 
             // Add Equipment to Excel
@@ -584,10 +580,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const isChecked = equipmentVal === true || typeof equipmentVal === 'string';
                 
                 if (key === "other") {
-                    row[`Equipment: ${label}`] = isChecked ? '✔' : '✖';
-                    row[`Equipment: ${label} (Detail)`] = isChecked && typeof equipmentVal === 'string' ? equipmentVal : '';
+                    row[`${label}`] = isChecked ? '✔' : '✖';
+                    row[`${label} (Detail)`] = isChecked && typeof equipmentVal === 'string' ? equipmentVal : '';
                 } else {
-                    row[`Equipment: ${label}`] = isChecked ? '✔' : '✖';
+                    row[`${label}`] = isChecked ? '✔' : '✖';
+                    
                 }
             }
             return row;
