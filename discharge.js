@@ -1,7 +1,7 @@
 // discharge.js
 
 import { db } from './firebase.js';
-import { collection, addDoc, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { collection, addDoc, getDocs, query, where, doc, getDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM Content Loaded. Initializing scripts for discharge.html.');
@@ -361,7 +361,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             patientName: currentPatientName,
             buildingId: selectedBuildingId,
             timestamp: new Date(),
-            // Removed: status: "active", // Removed status field as requested
             isActive: true // เพิ่มช่องสุดท้ายเป็น active ตามที่ร้องขอ
         };
 
@@ -445,8 +444,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         patientDataForSave.statuses = statuses;
 
         try {
-            // !!! เปลี่ยนชื่อ Collection เป็น register_process_statuses ให้ชัดเจนและแยกกัน !!!
-            await addDoc(collection(db, "register_process_statuses"), patientDataForSave);
+            // สร้าง Batch สำหรับการดำเนินการหลายอย่างพร้อมกัน
+            const batch = writeBatch(db);
+
+            // 1. ค้นหาเอกสาร 'register_process_statuses' ที่มี patientId เดียวกันและ isActive เป็น true
+            const existingStatusesQuery = query(
+                collection(db, "register_process_statuses"),
+                where("patientId", "==", selectedPatientId),
+                where("isActive", "==", true)
+            );
+            const existingStatusesSnapshot = await getDocs(existingStatusesQuery);
+
+            // 2. ตั้งค่า isActive: false สำหรับเอกสารเก่าที่พบ
+            existingStatusesSnapshot.forEach((doc) => {
+                batch.update(doc.ref, { isActive: false });
+            });
+
+            // 3. เพิ่มเอกสารใหม่ด้วย isActive: true
+            const newDocRef = doc(collection(db, "register_process_statuses")); // สร้าง reference สำหรับเอกสารใหม่
+            batch.set(newDocRef, patientDataForSave); // ใช้ batch.set เพื่อเพิ่มเอกสารใหม่
+
+            // 4. Commit batch เพื่อบันทึกการเปลี่ยนแปลงทั้งหมด
+            await batch.commit();
+
             alert("บันทึกสถานะการทำกายภาพสำเร็จ!");
             registerProcessForm.reset();
             clearPatientStatusAndInfo(); // Clear info after submission
