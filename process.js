@@ -1,5 +1,3 @@
-// process.js
-
 import { db } from './firebase.js';
 import {
     collection,
@@ -9,11 +7,11 @@ import {
     where,
     doc,
     getDoc,
-    orderBy, // Added for sorting
-    limit,   // Added for limiting results
+    orderBy, 
+    limit,   
     serverTimestamp,
-    deleteDoc, // Import deleteDoc to delete specific documents
-    writeBatch // Import writeBatch for atomic operations
+    deleteDoc, 
+    writeBatch 
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 

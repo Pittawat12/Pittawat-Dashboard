@@ -1,8 +1,3 @@
-// 🔧 แก้ไขตามคำสั่ง (โดยผู้เชี่ยวชาญ):
-// 1. ใน collection 'patients' → set isActive: false (ห้ามแก้ field อื่น เช่น patient_status)
-// 2. ใน collection 'register_process_statuses' → ห้ามลบ document, set isActive: false แทน
-// 3. เพิ่มเงื่อนไข isActive: true ในการโหลดตึกและผู้ป่วย
-
 import { db } from './firebase.js';
 import {
   collection,
@@ -15,15 +10,15 @@ import {
   updateDoc,
   writeBatch,
   serverTimestamp,
-  orderBy, // <-- เพิ่มการนำเข้า orderBy
-  limit    // <-- เพิ่มการนำเข้า limit
+  orderBy, 
+  limit   
 } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-// --- ส่วนควบคุมเมนู (ไม่เปลี่ยนแปลง) ---
+//ส่วนควบคุมเมนู 
 const hamburgerMenu = document.getElementById('hamburgerMenu');
 const overlayMenu = document.getElementById('overlayMenu');
 const closeMenu = document.getElementById('closeMenu');
-// --- จบส่วนควบคุมเมนู ---
+
 
 const buildingFilter = document.getElementById('buildingFilter');
 const patientFilter = document.getElementById('patientFilter');
@@ -37,9 +32,9 @@ const equipmentGroup = document.getElementById('equipmentGroup');
 const equipmentOtherCheckbox = document.getElementById('equipmentOther');
 const equipmentOtherReasonTextarea = document.getElementById('equipmentOtherReason');
 
-// โหลดรายการตึก
+// Filter ตึก
 async function loadBuildings() {
-  // Query only patients where isActive is true
+  // ดึงเฉพาะ ใน collection patients
   const q = query(collection(db, 'patients'), where('isActive', '==', true));
   const snapshot = await getDocs(q);
   const buildings = new Set();
@@ -589,7 +584,7 @@ async function handleDischargeSubmit(event) {
         // --- ขั้นตอนที่ 3: Commit batch operation ---
         await batch.commit();
 
-        alert('บันทึกข้อมูลผู้ป่วยเรียบร้อยแล้ว และอัปเดตสถานะ isActive ของข้อมูลเก่า');
+        alert('บันทึกข้อมูลผู้ป่วยเรียบร้อยแล้ว');
 
         // --- Logic เฉพาะเมื่อเลือก 'Discharge' อย่างถาวร ---
         if (selectedDischargeOption === 'discharge') {
@@ -617,7 +612,7 @@ async function handleDischargeSubmit(event) {
                 console.log(`Updated ${snapshot.size} documents in '${colName}' to isActive: false for patient ${selectedPatientId} during discharge.`);
             }
 
-            alert(`ผู้ป่วย ${patientName} ได้รับการจำหน่ายและข้อมูลที่เกี่ยวข้องถูกอัปเดตแล้ว`);
+            alert(`ผู้ป่วย ${patientName} ได้รับการจำหน่ายและอัพเดตข้อมูลแล้ว`);
         }
 
         // รีเซ็ตและโหลดข้อมูลใหม่หลังจากส่งฟอร์มสำเร็จ
@@ -778,4 +773,24 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+});
+
+const criteriaCheckboxes = [
+  { checkboxId: 'criteriaOrthopedist', inputId: 'timeOrthopedist' },
+  { checkboxId: 'criteriaGeriatric', inputId: 'timeGeriatric' },
+  { checkboxId: 'criteriaPhysicalTherapist', inputId: 'timePhysicalTherapist' }
+];
+
+criteriaCheckboxes.forEach(({ checkboxId, inputId }) => {
+  const checkbox = document.getElementById(checkboxId);
+  const input = document.getElementById(inputId);
+
+  checkbox.addEventListener('change', () => {
+    input.style.display = checkbox.checked ? 'block' : 'none';
+
+    // ✅ สำหรับมือถือ: โฟกัสอัตโนมัติและเปิดตัวเลือกปฏิทิน
+    if (checkbox.checked && window.innerWidth <= 767) {
+      setTimeout(() => input.showPicker && input.showPicker(), 10); // Safari ไม่รองรับ showPicker แต่ Chrome/Edge รองรับ
+    }
+  });
 });

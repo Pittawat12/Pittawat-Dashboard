@@ -1,5 +1,3 @@
-// dashboard.js
-
 import { db } from './firebase.js'; // นำเข้า db จากไฟล์ firebase.js
 import {
     collection,
@@ -285,7 +283,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log("Real-time D/C Today update received!");
             dischargeTodayListElem.innerHTML = '';
             if (snapshot.empty) {
-                dischargeTodayListElem.innerHTML = '<p class="no-data-message">ไม่มีผู้ป่วย D/C วันนี้</p>';
+                dischargeTodayListElem.innerHTML = '<p class="no-data-message">ไม่มีผู้ป่วย D/C today</p>';
             } else {
                 snapshot.forEach(doc => {
                     const data = doc.data();
@@ -310,7 +308,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log("Real-time D/C Tomorrow update received!");
             dischargeTomorrowListElem.innerHTML = '';
             if (snapshot.empty) {
-                dischargeTomorrowListElem.innerHTML = '<p class="no-data-message">ไม่มีผู้ป่วย D/C พรุ่งนี้</p>';
+                dischargeTomorrowListElem.innerHTML = '<p class="no-data-message">ไม่มีผู้ป่วย D/C tomorrow</p>';
             } else {
                 snapshot.forEach(doc => {
                     const data = doc.data();

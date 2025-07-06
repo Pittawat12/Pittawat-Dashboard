@@ -244,7 +244,7 @@ body.no-scroll {
 .card h2 {
     color: var(--primary-color);
     margin-bottom: 20px;
-    font-size: 1.375rem; /* 22px */
+    font-size: 26px; 
 }
 
 /* ถ้ามี h3 ใน distribution.html ให้เพิ่มตรงนี้ */
@@ -582,3 +582,4 @@ button[type="submit"]:disabled {
         font-size: 1rem; /* 16px */
     }
 }
+

@@ -1,6 +1,5 @@
-import { db } from './firebase.js'; // ตรวจสอบว่าไฟล์ firebase.js และการตั้งค่าถูกต้อง
+import { db } from './firebase.js'; 
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
 
 document.addEventListener('DOMContentLoaded', () => {
     // === Hamburger Menu Functionality ===

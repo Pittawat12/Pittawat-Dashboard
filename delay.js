@@ -1,5 +1,3 @@
-// delay.js
-
 import { db } from './firebase.js';
 import {
     collection, query, where, getDocs, onSnapshot,
@@ -23,7 +21,7 @@ let globalEquipment = {};     // To store the common equipment list fetched from
 const renderStatusCheckbox = (isCompleted, label, delayReason, statusKey) => { // Added statusKey
     // The checkbox will be checked and blue if completed, or unchecked and red if not completed (delayed).
     // It will always be disabled as per the requirement in the image.
-    const statusClass = isCompleted ? 'blue' : 'red';
+    const statusClass = isCompleted ? 'blue' : 'blue';
     const checkedAttribute = isCompleted ? 'checked' : '';
 
     let delayReasonHtml = '';

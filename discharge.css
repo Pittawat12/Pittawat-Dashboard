@@ -1,7 +1,5 @@
 /* discharge.css */
 
-
-
 :root {
     --primary-color: #ed6c41; /* สีส้มตามรูป */
     --secondary-color: #ffffff; /* สีขาว */
@@ -49,10 +47,10 @@ body.no-scroll {
 .main-header-bar .logo {
     font-size: 20px;
     font-weight: bold;
-    color: var(--primary-color); /* Orange "great job NURSING" */
+    color: var(--primary-color);
     line-height: 1.2;
-    text-align: left; /* Align logo to left */
-    margin-right: auto; /* Push logo to the left, and push hamburger menu to the right */
+    text-align: left;
+    margin-right: auto;
 }
 
 /* Hamburger Menu - Always visible now */
@@ -86,7 +84,7 @@ body.no-scroll {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Dim background */
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -170,23 +168,25 @@ body.no-scroll {
 .main-content {
     flex-grow: 1;
     padding: 15px;
-    padding-top: 25px; /* Space for the fixed header */
-    margin-left: 0; /* Ensure no left margin from old sidebar */
+    padding-top: 25px;
+    margin-left: 0;
     display: flex;
-    justify-content: center; /* Center the form horizontally */
+    justify-content: center;
     width: 100%;
     box-sizing: border-box;
+    padding-bottom: 20px;
 }
 
-.register-process-container { /* Main form container */
+.register-process-container {
     background-color: var(--card-bg);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px; /* Limit width as per previous design */
+    max-width: 600px; /* เปลี่ยนจาก 400px เป็น 600px เพื่อขยายฟอร์ม */
     box-sizing: border-box;
-    margin-top: 0; /* Remove specific top margin for consistency */
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 h2 {
@@ -300,7 +300,7 @@ h3 {
     margin-left: 10px;
     font-size: 14px;
     font-weight: bold;
-    color: #555;
+    color: #000;
 }
 
 button[type="submit"] {
@@ -319,4 +319,3 @@ button[type="submit"] {
 button[type="submit"]:hover {
     background-color: var(--button-primary-hover);
 }
-
