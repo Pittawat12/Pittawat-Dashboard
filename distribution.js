@@ -269,10 +269,12 @@ async function showPatientDetails(patientId) {
             if (typeof latestDischargeData.equipment.other === 'string' && latestDischargeData.equipment.other.trim() !== '') {
                 if (equipmentOtherCheckbox) equipmentOtherCheckbox.checked = true;
                 if (equipmentOtherReasonTextarea) equipmentOtherReasonTextarea.value = latestDischargeData.equipment.other;
+                // ต้องเรียก dispatchEvent เสมอ เพื่อให้ logic การแสดงผลทำงาน
                 const event = new Event('change');
                 if (equipmentOtherCheckbox) equipmentOtherCheckbox.dispatchEvent(event);
             } else {
                 if (equipmentOtherCheckbox) equipmentOtherCheckbox.checked = false;
+                // ต้องเรียก dispatchEvent เสมอ เพื่อให้ logic การแสดงผลทำงาน
                 const event = new Event('change');
                 if (equipmentOtherCheckbox) equipmentOtherCheckbox.dispatchEvent(event);
             }

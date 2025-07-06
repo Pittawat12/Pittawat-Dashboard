@@ -1,7 +1,7 @@
 // discharge.js
 
 import { db } from './firebase.js';
-import { collection, addDoc, getDocs, query, where, doc, getDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { collection, addDoc, getDocs, query, where, doc, getDoc, updateDoc, writeBatch, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM Content Loaded. Initializing scripts for discharge.html.');
@@ -65,33 +65,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sittingStatusCheckbox = document.getElementById('sittingStatus');
     const sittingTextSpan = document.getElementById('sittingText');
     const sittingTimeStatusSpan = document.getElementById('sittingTimeStatus');
-    const sittingDelayReasonSelect = document.getElementById('sittingDelayReason'); // Changed to select
-    const sittingOtherReasonTextarea = document.getElementById('sittingOtherReason'); // New textarea for 'Other'
+    const sittingDelayReasonSelect = document.getElementById('sittingDelayReason');
+    const sittingOtherReasonTextarea = document.getElementById('sittingOtherReason');
 
     const standingStatusCheckbox = document.getElementById('standingStatus');
     const standingTextSpan = document.getElementById('standingText');
     const standingTimeStatusSpan = document.getElementById('standingTimeStatus');
-    const standingDelayReasonSelect = document.getElementById('standingDelayReason'); // Changed to select
-    const standingOtherReasonTextarea = document.getElementById('standingOtherReason'); // New textarea for 'Other'
+    const standingDelayReasonSelect = document.getElementById('standingDelayReason');
+    const standingOtherReasonTextarea = document.getElementById('standingOtherReason');
 
     const goalStatusCheckbox = document.getElementById('goalStatus');
     const goalTextSpan = document.getElementById('goalText');
     const goalTimeStatusSpan = document.getElementById('goalTimeStatus');
-    const goalDelayReasonSelect = document.getElementById('goalDelayReason'); // Changed to select
-    const goalOtherReasonTextarea = document.getElementById('goalOtherReason'); // New textarea for 'Other'
+    const goalDelayReasonSelect = document.getElementById('goalDelayReason');
+    const goalOtherReasonTextarea = document.getElementById('goalOtherReason');
 
 
-    let currentPatientOperationDate = null; // Store operation date of selected patient
-    let currentPatientName = ''; // Store the name of the selected patient
+    let currentPatientOperationDate = null;
+    let currentPatientName = '';
 
-    // Function to fetch unique building IDs from the 'patients' collection
     const fetchBuildings = async () => {
         console.log("Fetching unique building IDs from 'patients' collection...");
         try {
-            // Filter by isActive: true
             const patientsQuery = query(collection(db, "patients"), where("isActive", "==", true));
             const patientsSnapshot = await getDocs(patientsQuery);
-            buildingFilterSelect.innerHTML = '<option value="">-- เลือกตึก --</option>'; // Clear existing options
+            buildingFilterSelect.innerHTML = '<option value="">-- เลือกตึก --</option>';
 
             const uniqueBuildings = new Set();
             if (patientsSnapshot.empty) {
@@ -129,16 +127,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Function to fetch and populate patients based on selected building
     const fetchPatientsByBuilding = async (buildingId) => {
-        patientFilterSelect.innerHTML = '<option value="">-- เลือกผู้ป่วย --</option>'; // Clear existing options
+        patientFilterSelect.innerHTML = '<option value="">-- เลือกผู้ป่วย --</option>';
         if (!buildingId) {
             clearPatientStatusAndInfo();
             return;
         }
 
         try {
-            // Filter by building and isActive: true
             const patientsQuery = query(collection(db, "patients"), where("building", "==", buildingId), where("isActive", "==", true));
             const patientsSnapshot = await getDocs(patientsQuery);
 
@@ -152,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 patientsSnapshot.forEach(doc => {
                     const option = document.createElement('option');
                     option.value = doc.id;
-                    option.textContent = doc.data().name || doc.id; // Display patient name if available, else ID
+                    option.textContent = doc.data().name || doc.id;
                     patientFilterSelect.appendChild(option);
                 });
             }
@@ -162,9 +158,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Function to display selected patient's information (only name) and update status checkboxes
     const displayPatientNameAndStatus = async (patientId) => {
-        clearPatientStatusAndInfo(); // Clear previous info and reset checkboxes
+        clearPatientStatusAndInfo();
 
         if (!patientId) {
             patientNameDisplay.textContent = '';
@@ -178,9 +173,65 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (patientDocSnap.exists()) {
                 const data = patientDocSnap.data();
                 patientNameDisplay.textContent = `ชื่อผู้ป่วย: ${data.name || 'N/A'}`;
-                currentPatientOperationDate = data.operationDate; // Store operation date
-                currentPatientName = data.name || 'N/A'; // Store patient name
-                updateStatusDisplay(); // Update display based on new patient's operation date
+                currentPatientOperationDate = data.operationDate;
+                currentPatientName = data.name || 'N/A';
+
+                const registerStatusQuery = query(
+                    collection(db, "register_process_statuses"),
+                    where("patientId", "==", patientId),
+                    where("isActive", "==", true),
+                    orderBy("timestamp", "desc"),
+                    limit(1)
+                );
+
+                const registerStatusSnapshot = await getDocs(registerStatusQuery);
+
+                if (!registerStatusSnapshot.empty) {
+                    const latestStatusData = registerStatusSnapshot.docs[0].data();
+
+                    if (latestStatusData.statuses && latestStatusData.statuses.sitting) {
+                        sittingStatusCheckbox.checked = latestStatusData.statuses.sitting.completed;
+                        if (latestStatusData.statuses.sitting.completed && latestStatusData.statuses.sitting.delayReason) {
+                            if (latestStatusData.statuses.sitting.delayReason.startsWith('อื่นๆ: ')) {
+                                sittingDelayReasonSelect.value = 'อื่นๆ';
+                                sittingOtherReasonTextarea.value = latestStatusData.statuses.sitting.delayReason.substring(6);
+                            } else {
+                                sittingDelayReasonSelect.value = latestStatusData.statuses.sitting.delayReason;
+                            }
+                        }
+                    }
+
+                    if (latestStatusData.statuses && latestStatusData.statuses.standing) {
+                        standingStatusCheckbox.checked = latestStatusData.statuses.standing.completed;
+                        if (latestStatusData.statuses.standing.completed && latestStatusData.statuses.standing.delayReason) {
+                             if (latestStatusData.statuses.standing.delayReason.startsWith('อื่นๆ: ')) {
+                                standingDelayReasonSelect.value = 'อื่นๆ';
+                                standingOtherReasonTextarea.value = latestStatusData.statuses.standing.delayReason.substring(6);
+                            } else {
+                                standingDelayReasonSelect.value = latestStatusData.statuses.standing.delayReason;
+                            }
+                        }
+                    }
+
+                    if (latestStatusData.statuses && latestStatusData.statuses.goal_ambulation) {
+                        goalStatusCheckbox.checked = latestStatusData.statuses.goal_ambulation.completed;
+                        if (latestStatusData.statuses.goal_ambulation.completed && latestStatusData.statuses.goal_ambulation.delayReason) {
+                            if (latestStatusData.statuses.goal_ambulation.delayReason.startsWith('อื่นๆ: ')) {
+                                goalDelayReasonSelect.value = 'อื่นๆ';
+                                goalOtherReasonTextarea.value = latestStatusData.statuses.goal_ambulation.delayReason.substring(6);
+                            } else {
+                                goalDelayReasonSelect.value = latestStatusData.statuses.goal_ambulation.delayReason;
+                            }
+                        }
+                    }
+                }
+
+                updateStatusDisplay();
+                const event = new Event('change');
+                sittingDelayReasonSelect.dispatchEvent(event);
+                standingDelayReasonSelect.dispatchEvent(event);
+                goalDelayReasonSelect.dispatchEvent(event);
+
             } else {
                 console.log("No such patient document!");
                 patientNameDisplay.textContent = '';
@@ -193,7 +244,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Helper to clear patient name and reset checkboxes and delay reasons
     const clearPatientStatusAndInfo = () => {
         patientNameDisplay.textContent = '';
         currentPatientOperationDate = null;
@@ -203,41 +253,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         sittingTextSpan.style.color = '';
         sittingTimeStatusSpan.textContent = '';
         sittingDelayReasonSelect.style.display = 'none';
-        sittingDelayReasonSelect.value = ''; // Reset select
-        sittingOtherReasonTextarea.style.display = 'none'; // Hide other reason
-        sittingOtherReasonTextarea.value = ''; // Clear other reason
+        sittingDelayReasonSelect.value = '';
+        sittingOtherReasonTextarea.style.display = 'none';
+        sittingOtherReasonTextarea.value = '';
 
         standingStatusCheckbox.checked = false;
         standingTextSpan.style.color = '';
         standingTimeStatusSpan.textContent = '';
         standingDelayReasonSelect.style.display = 'none';
-        standingDelayReasonSelect.value = ''; // Reset select
-        standingOtherReasonTextarea.style.display = 'none'; // Hide other reason
-        standingOtherReasonTextarea.value = ''; // Clear other reason
+        standingDelayReasonSelect.value = '';
+        standingOtherReasonTextarea.style.display = 'none';
+        standingOtherReasonTextarea.value = '';
 
         goalStatusCheckbox.checked = false;
         goalTextSpan.style.color = '';
         goalTimeStatusSpan.textContent = '';
         goalDelayReasonSelect.style.display = 'none';
-        goalDelayReasonSelect.value = ''; // Reset select
-        goalOtherReasonTextarea.style.display = 'none'; // Hide other reason
-        goalOtherReasonTextarea.value = ''; // Clear other reason
+        goalDelayReasonSelect.value = '';
+        goalOtherReasonTextarea.style.display = 'none';
+        goalOtherReasonTextarea.value = '';
     };
 
-    // Function to calculate time difference and update checkbox text colors and time status
     const updateStatusDisplay = () => {
         if (!currentPatientOperationDate) {
             console.log("No operation date available for status check.");
             sittingTextSpan.style.color = ''; sittingTimeStatusSpan.textContent = '';
             standingTextSpan.style.color = ''; standingTimeStatusSpan.textContent = '';
             goalTextSpan.style.color = ''; goalTimeStatusSpan.textContent = '';
-            // Ensure delay reason fields are hidden
-            sittingDelayReasonSelect.style.display = 'none'; sittingDelayReasonSelect.value = '';
-            sittingOtherReasonTextarea.style.display = 'none'; sittingOtherReasonTextarea.value = '';
-            standingDelayReasonSelect.style.display = 'none'; standingDelayReasonSelect.value = '';
-            standingOtherReasonTextarea.style.display = 'none'; standingOtherReasonTextarea.value = '';
-            goalDelayReasonSelect.style.display = 'none'; goalDelayReasonSelect.value = '';
-            goalOtherReasonTextarea.style.display = 'none'; goalOtherReasonTextarea.value = '';
+
+            sittingDelayReasonSelect.style.display = (sittingStatusCheckbox.checked && isOverdue(24)) ? 'block' : 'none';
+            if (sittingDelayReasonSelect.style.display === 'none') sittingDelayReasonSelect.value = '';
+            sittingOtherReasonTextarea.style.display = (sittingDelayReasonSelect.value === 'อื่นๆ' && sittingDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
+            if (sittingOtherReasonTextarea.style.display === 'none') sittingOtherReasonTextarea.value = '';
+
+            standingDelayReasonSelect.style.display = (standingStatusCheckbox.checked && isOverdue(24)) ? 'block' : 'none';
+            if (standingDelayReasonSelect.style.display === 'none') standingDelayReasonSelect.value = '';
+            standingOtherReasonTextarea.style.display = (standingDelayReasonSelect.value === 'อื่นๆ' && standingDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
+            if (standingOtherReasonTextarea.style.display === 'none') standingOtherReasonTextarea.value = '';
+
+            goalDelayReasonSelect.style.display = (goalStatusCheckbox.checked && isOverdue(48)) ? 'block' : 'none';
+            if (goalDelayReasonSelect.style.display === 'none') goalDelayReasonSelect.value = '';
+            goalOtherReasonTextarea.style.display = (goalDelayReasonSelect.value === 'อื่นๆ' && goalDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
+            if (goalOtherReasonTextarea.style.display === 'none') goalOtherReasonTextarea.value = '';
             return;
         }
 
@@ -246,48 +303,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         const diffMs = now.getTime() - operationDateTime.getTime();
         const diffHours = diffMs / (1000 * 60 * 60);
 
-        // --- Sitting: 24 hours ---
         if (diffHours <= 24) {
             sittingTextSpan.style.color = 'blue';
             sittingTimeStatusSpan.textContent = '(ทำได้ภายใน 24 ชม.)';
         } else {
             sittingTextSpan.style.color = 'red';
-            sittingTimeStatusSpan.textContent = `(ทำได้ภายใน 24 ชม. เกิน ${Math.floor(diffHours - 24)} ชม.)`; // Adjusted text
+            sittingTimeStatusSpan.textContent = `(ทำได้ภายใน 24 ชม. เกิน ${Math.floor(diffHours - 24)} ชม.)`;
         }
-        sittingDelayReasonSelect.style.display = (diffHours > 24 && sittingStatusCheckbox.checked) ? 'block' : 'none';
+        sittingDelayReasonSelect.style.display = (sittingStatusCheckbox.checked && diffHours > 24) ? 'block' : 'none';
         if (sittingDelayReasonSelect.style.display === 'none') sittingDelayReasonSelect.value = '';
         sittingOtherReasonTextarea.style.display = (sittingDelayReasonSelect.value === 'อื่นๆ' && sittingDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
         if (sittingOtherReasonTextarea.style.display === 'none') sittingOtherReasonTextarea.value = '';
 
 
-        // --- Standing: 24 hours (changed from 48) ---
         if (diffHours <= 24) {
             standingTextSpan.style.color = 'blue';
-            standingTimeStatusSpan.textContent = '(ทำได้ภายใน 24 ชม.)'; // Changed text
+            standingTimeStatusSpan.textContent = '(ทำได้ภายใน 24 ชม.)';
         } else {
             standingTextSpan.style.color = 'red';
-            standingTimeStatusSpan.textContent = `(ทำได้ภายใน 24 ชม. เกิน ${Math.floor(diffHours - 24)} ชม.)`; // Changed text
+            standingTimeStatusSpan.textContent = `(ทำได้ภายใน 24 ชม. เกิน ${Math.floor(diffHours - 24)} ชม.)`;
         }
-        standingDelayReasonSelect.style.display = (diffHours > 24 && standingStatusCheckbox.checked) ? 'block' : 'none'; // Changed from 48 to 24
+        standingDelayReasonSelect.style.display = (standingStatusCheckbox.checked && diffHours > 24) ? 'block' : 'none';
         if (standingDelayReasonSelect.style.display === 'none') standingDelayReasonSelect.value = '';
         standingOtherReasonTextarea.style.display = (standingDelayReasonSelect.value === 'อื่นๆ' && standingDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
         if (standingOtherReasonTextarea.style.display === 'none') standingOtherReasonTextarea.value = '';
 
-        // --- Goal Ambulation: 48 hours (remains the same) ---
         if (diffHours <= 48) {
             goalTextSpan.style.color = 'blue';
             goalTimeStatusSpan.textContent = '(ทำได้ภายใน 48 ชม.)';
         } else {
             goalTextSpan.style.color = 'red';
-            goalTimeStatusSpan.textContent = `(ทำได้ภายใน 48 ชม. เกิน ${Math.floor(diffHours - 48)} ชม.)`; // Adjusted text
+            goalTimeStatusSpan.textContent = `(ทำได้ภายใน 48 ชม. เกิน ${Math.floor(diffHours - 48)} ชม.)`;
         }
-        goalDelayReasonSelect.style.display = (diffHours > 48 && goalStatusCheckbox.checked) ? 'block' : 'none';
+        goalDelayReasonSelect.style.display = (goalStatusCheckbox.checked && diffHours > 48) ? 'block' : 'none';
         if (goalDelayReasonSelect.style.display === 'none') goalDelayReasonSelect.value = '';
         goalOtherReasonTextarea.style.display = (goalDelayReasonSelect.value === 'อื่นๆ' && goalDelayReasonSelect.style.display === 'block') ? 'block' : 'none';
         if (goalOtherReasonTextarea.style.display === 'none') goalOtherReasonTextarea.value = '';
     };
 
-    // Helper function to check if a status is "overdue" based on operation date
     const isOverdue = (thresholdHours) => {
         if (!currentPatientOperationDate) return false;
         const operationDateTime = new Date(currentPatientOperationDate);
@@ -298,30 +351,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
 
-    // Initial load: Fetch buildings when the page loads
     await fetchBuildings();
 
-    // Event listener for building selection change
     buildingFilterSelect.addEventListener('change', () => {
         const selectedBuildingId = buildingFilterSelect.value;
         fetchPatientsByBuilding(selectedBuildingId);
-        // Clear patient info and reset checkboxes when building changes
         clearPatientStatusAndInfo();
     });
 
-    // Event listener for patient selection change
     patientFilterSelect.addEventListener('change', () => {
         const selectedPatientId = patientFilterSelect.value;
         displayPatientNameAndStatus(selectedPatientId);
     });
 
-    // --- Event Listeners for Checkbox Changes ---
     sittingStatusCheckbox.addEventListener('change', updateStatusDisplay);
     standingStatusCheckbox.addEventListener('change', updateStatusDisplay);
     goalStatusCheckbox.addEventListener('change', updateStatusDisplay);
 
-    // --- Event Listeners for Delay Reason Select Changes ---
-    const setupDelayReasonListener = (selectElement, otherTextareaElement) => { // Removed thresholdHours as it's not directly used here
+    const setupDelayReasonListener = (selectElement, otherTextareaElement) => {
         selectElement.addEventListener('change', () => {
             if (selectElement.value === 'อื่นๆ') {
                 otherTextareaElement.style.display = 'block';
@@ -329,7 +376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 otherTextareaElement.style.display = 'none';
                 otherTextareaElement.value = '';
             }
-            updateStatusDisplay(); // Re-evaluate display
+            updateStatusDisplay();
         });
     };
 
@@ -338,7 +385,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupDelayReasonListener(goalDelayReasonSelect, goalOtherReasonTextarea);
 
 
-    // Form submission for Register Process
     registerProcessForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -350,7 +396,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // ตรวจสอบว่ามีชื่อผู้ป่วยหรือไม่
         if (!currentPatientName) {
             alert("ไม่สามารถดึงชื่อผู้ป่วยได้ กรุณาลองเลือกผู้ป่วยใหม่อีกครั้ง");
             return;
@@ -361,13 +406,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             patientName: currentPatientName,
             buildingId: selectedBuildingId,
             timestamp: new Date(),
-            isActive: true // เพิ่มช่องสุดท้ายเป็น active ตามที่ร้องขอ
+            isActive: true
         };
 
         const statuses = {};
         let hasError = false;
 
-        // Function to get delay reason
         const getDelayReason = (selectElement, otherTextareaElement, isOverdueStatus, statusNameForAlert) => {
             if (isOverdueStatus) {
                 const selectedReason = selectElement.value;
@@ -387,14 +431,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 return selectedReason;
             }
-            return null; // Not overdue or not applicable
+            return null;
         };
 
-        // Sitting Status
         if (sittingStatusCheckbox.checked) {
             const isSittingOverdue = isOverdue(24);
             const delayReason = getDelayReason(sittingDelayReasonSelect, sittingOtherReasonTextarea, isSittingOverdue, 'Sitting');
-            if (hasError) return; // Stop if there was an alert
+            if (hasError) return;
             statuses.sitting = {
                 completed: true,
                 delayReason: delayReason
@@ -404,9 +447,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
 
-        // Standing Status (threshold changed to 24 hours)
         if (standingStatusCheckbox.checked) {
-            const isStandingOverdue = isOverdue(24); // Changed from 48 to 24
+            const isStandingOverdue = isOverdue(24);
             const delayReason = getDelayReason(standingDelayReasonSelect, standingOtherReasonTextarea, isStandingOverdue, 'Standing');
             if (hasError) return;
             statuses.standing = {
@@ -417,7 +459,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             statuses.standing = { completed: false };
         }
 
-        // Goal Ambulation Status
         if (goalStatusCheckbox.checked) {
             const isGoalOverdue = isOverdue(48);
             const delayReason = getDelayReason(goalDelayReasonSelect, goalOtherReasonTextarea, isGoalOverdue, 'Goal Ambulation');
@@ -434,20 +475,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Check if at least one checkbox is checked for submission
         if (!sittingStatusCheckbox.checked && !standingStatusCheckbox.checked && !goalStatusCheckbox.checked) {
             alert("กรุณาเลือกสถานะการทำกายภาพอย่างน้อยหนึ่งรายการ");
             return;
         }
 
-
         patientDataForSave.statuses = statuses;
 
         try {
-            // สร้าง Batch สำหรับการดำเนินการหลายอย่างพร้อมกัน
             const batch = writeBatch(db);
 
-            // 1. ค้นหาเอกสาร 'register_process_statuses' ที่มี patientId เดียวกันและ isActive เป็น true
             const existingStatusesQuery = query(
                 collection(db, "register_process_statuses"),
                 where("patientId", "==", selectedPatientId),
@@ -455,22 +492,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
             const existingStatusesSnapshot = await getDocs(existingStatusesQuery);
 
-            // 2. ตั้งค่า isActive: false สำหรับเอกสารเก่าที่พบ
             existingStatusesSnapshot.forEach((doc) => {
                 batch.update(doc.ref, { isActive: false });
             });
 
-            // 3. เพิ่มเอกสารใหม่ด้วย isActive: true
-            const newDocRef = doc(collection(db, "register_process_statuses")); // สร้าง reference สำหรับเอกสารใหม่
-            batch.set(newDocRef, patientDataForSave); // ใช้ batch.set เพื่อเพิ่มเอกสารใหม่
+            const newDocRef = doc(collection(db, "register_process_statuses"));
+            batch.set(newDocRef, patientDataForSave);
 
-            // 4. Commit batch เพื่อบันทึกการเปลี่ยนแปลงทั้งหมด
             await batch.commit();
 
             alert("บันทึกสถานะการทำกายภาพสำเร็จ!");
             registerProcessForm.reset();
-            clearPatientStatusAndInfo(); // Clear info after submission
-            await fetchBuildings(); // Re-fetch buildings in case new patient added earlier
+            clearPatientStatusAndInfo();
+            await fetchBuildings();
         } catch (error) {
             console.error("Error saving document: ", error);
             alert("เกิดข้อผิดพลาดในการบันทึกสถานะ: " + error.message);
