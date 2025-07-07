@@ -188,6 +188,12 @@ const renderPatientCards = (patients) => {
         const room = patient.room; // Added room
         const { postOpDay, lengthOfStay } = calculateDates(patient.admissionDate, patient.operationDate);
 
+        // Extract new patient details based on your request
+        const bed = patient.bed; // Assuming 'hn' field exists in patient data
+        const Diagnosis = patient.Diagnosis; // Assuming 'Diagnosis' field exists
+        const operation = patient.operation; // Assuming 'operation' field exists
+        const goal = patient.goal; // Assuming 'goal' field exists for Goal Ambulation
+
         const sittingCompleted = patient.statuses?.sitting?.completed || false;
         const standingCompleted = patient.statuses?.standing?.completed || false;
         const ambulationCompleted = patient.statuses?.goal_ambulation?.completed || false;
@@ -217,8 +223,12 @@ const renderPatientCards = (patients) => {
             <div class="patient-info">
                 <h2>${name || 'ไม่ระบุชื่อ'}</h2>
                 <p><strong>ตึก:</strong> ${building } </p>
+                <p><strong>HN:</strong> ${bed || ''}</p>
+                <p><strong>Diagnosis:</strong> ${Diagnosis || ''}</p>
+                <p><strong>Operation:</strong> ${operation || '-'}</p>
                 <p><strong>Post-Op Day:</strong> ${postOpDay} วัน</p>
                 <p><strong>Length Of Stay:</strong>${lengthOfStay} วัน</p>
+                <p><strong>Goal Ambulation:</strong> ${goal || '-'}</p>
             </div>
             <div class="status-section">
                 <h3>Progress Status</h3>
@@ -539,6 +549,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const row = {
                 'Name': p.name || '',
                 'Building': p.building || '',
+                // Added HN, Diagnosis, Operation, and Goal Ambulation to Excel export
+                'HN': p.bed || '',
+                'Diagnosis': p.Diagnosis || '',
+                'Operation': p.operation || '',
+                'Goal Ambulation (Text)': p.goal || '', // Assuming 'goal' is the raw data for Goal Ambulation
                 'Post-Op Day': postOpDay ,
                 'Length of Stay': lengthOfStay,
                 'Sitting': sittingCompleted ? '✔' : '✖',

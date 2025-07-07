@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function setupAlertsListener() {
         console.log("Setting up real-time alerts listener...");
         const q = query(patientAlertsCollection);
-
+const previousPhysicalPrepIds = new Set(); // ⭐ ใช้เก็บ patientId ที่เคยแจ้งแล้ว
         onSnapshot(q, (snapshot) => {
             console.log("Real-time alert update received for patient_alerts!");
 
@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
              });
 
             const displayedPhysicalPrep = new Set();
+let newPhysioAlertAdded = false; // ⭐ ตรวจจับว่ามีข้อมูลใหม่หรือไม่
             const displayedReadyPhysical = new Set();
             const displayedPainProblem = new Set();
             const displayedOutOfBuilding = new Set();
@@ -137,6 +138,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (!displayedPhysicalPrep.has(patientId)) {
                         renderListItem(physicalPrepAlertListElem, patientId);
                         displayedPhysicalPrep.add(patientId);
+                        if (!previousPhysicalPrepIds.has(patientId)) {
+            newPhysioAlertAdded = true; // มีข้อมูลใหม่จริง
+        }
                     }
                 }
 
@@ -187,6 +191,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             // Show/hide "no data" messages for each list
+            if (newPhysioAlertAdded) {
+    const physioAlertSound = document.getElementById('physioAlertSound');
+    if (physioAlertSound) {
+        physioAlertSound.play().catch(error => {
+            console.warn("ไม่สามารถเล่นเสียงแจ้งเตือนได้:", error);
+        });
+    }
+}
             [physicalPrepAlertListElem, readyPhysicalAlertListElem,
              painProblemAlertListElem, outOfBuildingAlertListElem,
              complicationAlertListElem].forEach(elem => {
@@ -583,3 +595,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
+

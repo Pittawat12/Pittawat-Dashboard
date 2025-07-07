@@ -33,7 +33,7 @@
                     <li><a href="process.html">ALERT</a></li>
                     <li><a href="discharge.html"  >REGISTER PROCESS</a></li>
                     <li><a href="delay.html"  >Progress Goal</a></li>
-                    <li><a href="distribution.html" >DISPENSING OF MEDICATON</a></li>
+                    <li><a href="distribution.html" >DISCHARGE PLAN</a></li>
                 </ul>
             </div>
         </div>
@@ -46,14 +46,15 @@
                         <h3>ยอดผู้ป่วยทั้งหมด</h3>
                             <p class="data-value" id="totalPatientsCount">0</p>
                     </div>
-                <div class="dashboard-card alert-box physical-prep-alert">
-                    <h3>แจ้งทำกายภาพ</h3>
-                        <div class="alert-list" id="physicalPrepAlertList">
-                            <p class="no-data-message">ไม่มีผู้ป่วยแจ้งทำกายภาพ</p>
-                        </div>
-                </div>
+               <div class="dashboard-card alert-box physical-prep-alert">
+    <audio id="physioAlertSound" src="noti.mp3" preload="auto"></audio> 
+    <h3>นักกายภาพแจ้งทำกายภาพ</h3>
+    <div class="alert-list" id="physicalPrepAlertList">
+        <p class="no-data-message">ไม่มีผู้ป่วยแจ้งทำกายภาพ</p>
+    </div>
+</div>
                 <div class="dashboard-card alert-box ready-physical-alert">
-                    <h3>พร้อมทำกายภาพ</h3>
+                    <h3>พยาบาลแจ้งพร้อมทำกายภาพ</h3>
                         <div class="alert-list" id="readyPhysicalAlertList">
                              <p class="no-data-message">ไม่มีผู้ป่วยพร้อมทำกายภาพ</p>
                         </div>
@@ -71,19 +72,19 @@
                         </div>
                 </div>
                 <div class="dashboard-card alert-box complication-alert">
-                    <h3>มีภาวะแทรกซ้อน</h3>
+                    <h3>Problem List</h3>
                         <div class="alert-list" id="complicationAlertList">
                             <p class="no-data-message">ไม่มีผู้ป่วยมีภาวะแทรกซ้อน</p>
                         </div>
                 </div>
                 <div class="dashboard-card discharge-today">
-                    <h3>D/C today</h3>
+                    <h3>D/C Today</h3>
                         <div class="alert-list" id="dischargeTodayList">
                             <p class="no-data-message">ไม่มีผู้ป่วย D/C today</p>
                         </div>
                 </div>
                 <div class="dashboard-card discharge-tomorrow">
-                    <h3>D/C tommorrow</h3>
+                    <h3>D/C Tomorrow</h3>
                         <div class="alert-list" id="dischargeTomorrowList">
                             <p class="no-data-message">ไม่มีผู้ป่วย D/C tommorrow</p>
                         </div>
