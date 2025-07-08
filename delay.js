@@ -446,7 +446,7 @@ const fetchCommonData = async () => {
     };
 
     globalEquipment = {
-        cane: 'Cane',
+       // cane: 'Cane',
         walker: 'Walker',
         wheel_chair: 'wheel chair',
         other: 'อื่นๆ ระบุ'
